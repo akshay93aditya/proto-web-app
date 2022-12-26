@@ -1,5 +1,12 @@
-import React from 'react';
+import React from "react";
+import CheckIn from "../components/CheckIn";
+import Map from "../components/Map";
 
 export default function checkin() {
-	return <div>check-in</div>;
+  return (
+    <>
+      <Map />
+      <CheckIn />
+    </>
+  );
 }
