@@ -7,6 +7,7 @@ import { Textarea } from "@chakra-ui/react";
 export type CheckIN = {
   lat: number;
   lng: number;
+  loc: boolean;
   checkInMessage: string;
   loading: boolean;
   success: boolean;
@@ -20,6 +21,7 @@ export type pdl = {
 const CheckIn = () => {
   const [lat, setlat] = useState<number>(0);
   const [lng, setlng] = useState<number>(0);
+  const [loc, setLoc] = useState<boolean>(false);
   // const [address, setAddress] = useState("");
   const [checkInMessage, setcheckInMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -38,6 +40,10 @@ const CheckIn = () => {
         setlng(position.coords.longitude);
       });
     }
+  }, []);
+
+  useEffect(() => {
+    setLoc(true);
   }, []);
 
   async function handleSubmit(e) {
@@ -115,9 +121,15 @@ const CheckIn = () => {
   return (
     <div className="w-full flex flex-col justify-center items-center pb-4 absolute bottom-0 bg-white z-10 transition-height duration-500 ease-in-out h-max visible">
       <div className="bg-[#14AEDE] m-0 p-0 w-full h-12 flex flex-col justify-center items-center">
-        <div className="text-white text-lg font-semibold">
-          {lat},{lng}
-        </div>
+        {lat && lng ? (
+          <div className="text-white text-lg font-semibold">
+            {lat} , {lng}
+          </div>
+        ) : (
+          <div className="text-white text-lg font-semibold">
+            Fetching User Location...
+          </div>
+        )}
         {/* <div className="text-white font-normal text-xs">
           Brooklyn Bridge, New York, USA
         </div> */}
@@ -135,6 +147,7 @@ const CheckIn = () => {
             className="w-full h-32 resize-none rounded-md bg-[#d9d9d980]"
             value={checkInMessage}
             onChange={handleChange}
+            isRequired
           />
         </div>
         {/* <Wallets /> */}
@@ -149,7 +162,7 @@ const CheckIn = () => {
             visible={true}
           />
         )}
-        {!loading && (
+        {lat && lng && !loading ? (
           <button
             type="submit"
             style={{
@@ -169,6 +182,27 @@ const CheckIn = () => {
           >
             Check In
           </button>
+        ) : (
+          <button
+            type="submit"
+            style={{
+              background: `#14aede`,
+              width: `100%`,
+              display: `flex`,
+              justifyContent: `center`,
+              alignItems: `center`,
+              paddingLeft: `20px`,
+              paddingRight: `20px`,
+              height: `35px`,
+              borderRadius: `6px`,
+              color: `white`,
+              fontWeight: `700`,
+              fontSize: `20px`,
+            }}
+            disabled
+          >
+            Check In
+          </button>
         )}
       </form>
       {success && (
@@ -184,7 +218,7 @@ const CheckIn = () => {
           }}
         >
           <div className="pdl-data" style={{ paddingBottom: `16px` }}>
-            PDL successfully generated : {`${checkin.pdl}`}
+            Check-In Complete : {`${checkin.pdl}`}
           </div>
           <div className="explorer">
             <a
