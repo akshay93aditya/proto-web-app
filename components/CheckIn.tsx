@@ -33,12 +33,19 @@ const CheckIn = () => {
   //   console.log(connected);
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.watchPosition((position) => {
-        setlat(position.coords.latitude);
-        setlng(position.coords.longitude);
-      });
+    const options = {
+      enableHighAccuracy: false,
+      timeout: 5000,
+      maximumAge: Infinity,
+    };
+    function success(position) {
+      setlat(position.coords.latitude);
+      setlng(position.coords.longitude);
     }
+    function error(err) {
+      console.warn(`ERROR(${err.code}): ${err.message}`);
+    }
+    navigator.geolocation.getCurrentPosition(success, error, options);
   }, []);
 
   async function handleSubmit(e) {
@@ -146,7 +153,7 @@ const CheckIn = () => {
           />
         </div>
         {/* <Wallets /> */}
-        {loading && (
+        {/* {loading && (
           <Audio
             height="50"
             width="100"
@@ -156,48 +163,60 @@ const CheckIn = () => {
             wrapperClass="wrapper-class"
             visible={true}
           />
-        )}
-        {lat && lng && !loading ? (
-          <button
-            type="submit"
-            style={{
-              background: `#14aede`,
-              width: `100%`,
-              display: `flex`,
-              justifyContent: `center`,
-              alignItems: `center`,
-              paddingLeft: `20px`,
-              paddingRight: `20px`,
-              height: `35px`,
-              borderRadius: `6px`,
-              color: `white`,
-              fontWeight: `700`,
-              fontSize: `20px`,
-            }}
-          >
-            Check In
-          </button>
+        )} */}
+        {!loading ? (
+          lat && lng ? (
+            <button
+              type="submit"
+              style={{
+                background: `#14aede`,
+                width: `100%`,
+                display: `flex`,
+                justifyContent: `center`,
+                alignItems: `center`,
+                paddingLeft: `20px`,
+                paddingRight: `20px`,
+                height: `35px`,
+                borderRadius: `6px`,
+                color: `white`,
+                fontWeight: `700`,
+                fontSize: `20px`,
+              }}
+            >
+              Check In
+            </button>
+          ) : (
+            <button
+              type="submit"
+              style={{
+                background: `#14aede`,
+                width: `100%`,
+                display: `flex`,
+                justifyContent: `center`,
+                alignItems: `center`,
+                paddingLeft: `20px`,
+                paddingRight: `20px`,
+                height: `35px`,
+                borderRadius: `6px`,
+                color: `white`,
+                fontWeight: `700`,
+                fontSize: `20px`,
+              }}
+              disabled
+            >
+              Check In
+            </button>
+          )
         ) : (
-          <button
-            type="submit"
-            style={{
-              background: `#14aede`,
-              width: `100%`,
-              display: `flex`,
-              justifyContent: `center`,
-              alignItems: `center`,
-              paddingLeft: `20px`,
-              paddingRight: `20px`,
-              height: `35px`,
-              borderRadius: `6px`,
-              color: `white`,
-              fontWeight: `700`,
-              fontSize: `20px`,
-            }}
-            disabled
-          >
-            Check In
-          </button>
+          <Audio
+            height="50"
+            width="100"
+            color="#14aede"
+            ariaLabel="audio-loading"
+            wrapperStyle={{}}
+            wrapperClass="wrapper-class"
+            visible={true}
+          />
         )}
       </form>
       {success && (
