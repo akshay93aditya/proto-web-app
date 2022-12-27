@@ -4,28 +4,41 @@ import axios from "axios";
 import { Audio } from "react-loader-spinner";
 import { Textarea } from "@chakra-ui/react";
 
+export type CheckIN = {
+  lat: number;
+  lng: number;
+  checkInMessage: string;
+  loading: boolean;
+  success: boolean;
+  checkin: pdl;
+};
+
+export type pdl = {
+  pdl: string;
+};
+
 const CheckIn = () => {
-  const [lat, setlat] = useState(0);
-  const [lng, setlng] = useState(0);
+  const [lat, setlat] = useState<number>(0);
+  const [lng, setlng] = useState<number>(0);
   // const [address, setAddress] = useState("");
-  const [checkInMessage, setcheckInMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [checkin, setcheckIn] = useState({ pdl: String });
+  const [checkInMessage, setcheckInMessage] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [success, setSuccess] = useState<boolean>(false);
+  const [checkin, setcheckIn] = useState<pdl>();
 
   const { connected, publicKey } = useWallet();
 
-  console.log(publicKey);
-  console.log(connected);
+  //   console.log(publicKey);
+  //   console.log(connected);
 
   useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
+      navigator.geolocation.watchPosition((position) => {
         setlat(position.coords.latitude);
         setlng(position.coords.longitude);
       });
     }
-  });
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -42,6 +55,8 @@ const CheckIn = () => {
         url: "https://proto-api.onrender.com/users",
         params: { wallet_address: publicKey.toString() },
       });
+      //   console.log(usersResponse);
+      //   console.log(usersResponse.data.length);
 
       if (usersResponse.data.length) {
         const checkinResponse = await axios({
@@ -54,28 +69,38 @@ const CheckIn = () => {
             longitude: lng,
           },
         });
-      }
-      const newUserResponse = await axios({
-        method: "post",
-        url: "https://proto-api.onrender.com/users",
-        data: {
-          wallet_address: publicKey.toString(),
-        },
-      });
+        // console.log(usersResponse);
+        // // console.log(usersResponse.data.length);
+        setcheckIn(checkinResponse.data);
+        setLoading(false);
+        setSuccess(true);
+        console.log(checkinResponse.data);
+      } else {
+        const newUserResponse = await axios({
+          method: "post",
+          url: "https://proto-api.onrender.com/users",
+          data: {
+            wallet_address: publicKey.toString(),
+          },
+        });
 
-      const checkinResponse = await axios({
-        method: "post",
-        url: "https://proto-api.onrender.com/checkins",
-        data: {
-          user_wallet_address: publicKey.toString(),
-          message: checkInMessage,
-          latitude: lat,
-          longitude: lng,
-        },
-      });
-      setcheckIn(checkinResponse.data);
-      setLoading(false);
-      setSuccess(true);
+        // console.log(newUserResponse);
+
+        const checkinResponse = await axios({
+          method: "post",
+          url: "https://proto-api.onrender.com/checkins",
+          data: {
+            user_wallet_address: publicKey.toString(),
+            message: checkInMessage,
+            latitude: lat,
+            longitude: lng,
+          },
+        });
+        setcheckIn(checkinResponse.data);
+        setLoading(false);
+        setSuccess(true);
+        console.log(checkinResponse.data);
+      }
     } catch (error) {
       console.log(error);
       setLoading(false);
