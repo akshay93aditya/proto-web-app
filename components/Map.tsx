@@ -50,7 +50,7 @@ export default function Map() {
 	});
 
 	return (
-		<div className='mapContain' style={{ width: `100%`, height: 'calc(100vh - 100px)' }}>
+		<div className='mapContain' style={{ width: `100%`, height: 'calc(100vh - 122px)' }}>
 			<div ref={mapContainer} className='map-container' />
 		</div>
 	);

@@ -45,7 +45,7 @@ export default function checkin() {
 	return (
 		<>
 			<div
-				className='absolute bottom-[42px] right-[24px] z-10 p-2 bg-[#14AEDE] rounded-lg shadow-lg transition-all ease-in-out duration-1000'
+				className='absolute bottom-[32px] right-[24px] z-10 p-2 bg-[#14AEDE] rounded-lg shadow-lg transition-all ease-in-out duration-1000'
 				onClick={() => setIsOpen(true)}
 				data-cursor='pointer'>
 				<CheckinIcon2 />
