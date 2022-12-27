@@ -3,7 +3,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import axios from "axios";
 import { Audio } from "react-loader-spinner";
 import { Textarea } from "@chakra-ui/react";
-
+import { SearchIcon } from "@chakra-ui/icons";
 export type CheckIN = {
   lat: number;
   lng: number;
@@ -21,7 +21,6 @@ export type pdl = {
 const CheckIn = () => {
   const [lat, setlat] = useState<number>(0);
   const [lng, setlng] = useState<number>(0);
-  const [loc, setLoc] = useState<boolean>(false);
   // const [address, setAddress] = useState("");
   const [checkInMessage, setcheckInMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -40,10 +39,6 @@ const CheckIn = () => {
         setlng(position.coords.longitude);
       });
     }
-  }, []);
-
-  useEffect(() => {
-    setLoc(true);
   }, []);
 
   async function handleSubmit(e) {
@@ -127,7 +122,7 @@ const CheckIn = () => {
           </div>
         ) : (
           <div className="text-white text-lg font-semibold">
-            Fetching User Location...
+            <SearchIcon color="gray.300" /> Fetching User Location
           </div>
         )}
         {/* <div className="text-white font-normal text-xs">
