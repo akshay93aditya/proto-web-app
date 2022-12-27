@@ -8,6 +8,9 @@ module.exports = {
 			fontFamily: {
 				sans: ['var(--font-montserrat)'],
 			},
+			transitionProperty: {
+				height: 'height',
+			},
 		},
 	},
 	plugins: [],

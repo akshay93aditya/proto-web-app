@@ -23,15 +23,7 @@ const ConnectButton = styled(WalletMultiButtonDynamic)`
 const Home = () => {
 	const { connected } = useWallet();
 
-	return (
-		<>
-			{!connected ? (
-				<ConnectButton>Connect Wallet</ConnectButton>
-			) : (
-				<WalletMultiButtonDynamic />
-			)}
-		</>
-	);
+	return <>{!connected ? <ConnectButton>Connect Wallet</ConnectButton> : <ConnectButton />}</>;
 };
 
 export default Home;
