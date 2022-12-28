@@ -1,5 +1,10 @@
 import React from 'react';
+import Timeline from '../components/Timeline';
 
 export default function options() {
-	return <div>options</div>;
+	return (
+		<div>
+			<Timeline />
+		</div>
+	);
 }

@@ -66,7 +66,7 @@ export default function Tabs() {
 	];
 
 	return (
-		<div className='w-full'>
+		<div className='w-full z-20'>
 			<section className='block fixed inset-x-0 bottom-0 z-10 bg-white shadow p-2'>
 				<div className='flex justify-around'>
 					{TabLinks.map((tab, index) => {

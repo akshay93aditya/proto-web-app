@@ -24,7 +24,7 @@ const ProfileIcon = () => {
 
 export default function Header() {
 	return (
-		<div className='flex py-2 px-8 justify-between items-center shadow sticky top-0 w-full'>
+		<div className='flex py-2 px-8 justify-between items-center shadow sticky top-0 w-full z-20 bg-white'>
 			<ProfileIcon />
 			<InputGroup>
 				<Input
