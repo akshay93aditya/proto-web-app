@@ -3,29 +3,50 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import axios from "axios";
 import { Audio } from "react-loader-spinner";
 import { Textarea } from "@chakra-ui/react";
+import { SearchIcon } from "@chakra-ui/icons";
+export type CheckIN = {
+  lat: number;
+  lng: number;
+  loc: boolean;
+  checkInMessage: string;
+  loading: boolean;
+  success: boolean;
+  checkin: pdl;
+};
+
+export type pdl = {
+  pdl: string;
+};
 
 const CheckIn = () => {
-  const [lat, setlat] = useState(0);
-  const [lng, setlng] = useState(0);
+  const [lat, setlat] = useState<number>(0);
+  const [lng, setlng] = useState<number>(0);
   // const [address, setAddress] = useState("");
-  const [checkInMessage, setcheckInMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [checkin, setcheckIn] = useState({ pdl: String });
+  const [checkInMessage, setcheckInMessage] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [success, setSuccess] = useState<boolean>(false);
+  const [checkin, setcheckIn] = useState<pdl>();
 
   const { connected, publicKey } = useWallet();
 
-  console.log(publicKey);
-  console.log(connected);
+  //   console.log(publicKey);
+  //   console.log(connected);
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setlat(position.coords.latitude);
-        setlng(position.coords.longitude);
-      });
+    const options = {
+      enableHighAccuracy: false,
+      timeout: 5000,
+      maximumAge: Infinity,
+    };
+    function success(position) {
+      setlat(position.coords.latitude);
+      setlng(position.coords.longitude);
     }
-  });
+    function error(err) {
+      console.warn(`ERROR(${err.code}): ${err.message}`);
+    }
+    navigator.geolocation.getCurrentPosition(success, error, options);
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -42,6 +63,8 @@ const CheckIn = () => {
         url: "https://proto-api.onrender.com/users",
         params: { wallet_address: publicKey.toString() },
       });
+      //   console.log(usersResponse);
+      //   console.log(usersResponse.data.length);
 
       if (usersResponse.data.length) {
         const checkinResponse = await axios({
@@ -54,28 +77,38 @@ const CheckIn = () => {
             longitude: lng,
           },
         });
-      }
-      const newUserResponse = await axios({
-        method: "post",
-        url: "https://proto-api.onrender.com/users",
-        data: {
-          wallet_address: publicKey.toString(),
-        },
-      });
+        // console.log(usersResponse);
+        // // console.log(usersResponse.data.length);
+        setcheckIn(checkinResponse.data);
+        setLoading(false);
+        setSuccess(true);
+        console.log(checkinResponse.data);
+      } else {
+        const newUserResponse = await axios({
+          method: "post",
+          url: "https://proto-api.onrender.com/users",
+          data: {
+            wallet_address: publicKey.toString(),
+          },
+        });
 
-      const checkinResponse = await axios({
-        method: "post",
-        url: "https://proto-api.onrender.com/checkins",
-        data: {
-          user_wallet_address: publicKey.toString(),
-          message: checkInMessage,
-          latitude: lat,
-          longitude: lng,
-        },
-      });
-      setcheckIn(checkinResponse.data);
-      setLoading(false);
-      setSuccess(true);
+        // console.log(newUserResponse);
+
+        const checkinResponse = await axios({
+          method: "post",
+          url: "https://proto-api.onrender.com/checkins",
+          data: {
+            user_wallet_address: publicKey.toString(),
+            message: checkInMessage,
+            latitude: lat,
+            longitude: lng,
+          },
+        });
+        setcheckIn(checkinResponse.data);
+        setLoading(false);
+        setSuccess(true);
+        console.log(checkinResponse.data);
+      }
     } catch (error) {
       console.log(error);
       setLoading(false);
@@ -90,9 +123,15 @@ const CheckIn = () => {
   return (
     <div className="w-full flex flex-col justify-center items-center pb-4 absolute bottom-0 bg-white z-10 transition-height duration-500 ease-in-out h-max visible">
       <div className="bg-[#14AEDE] m-0 p-0 w-full h-12 flex flex-col justify-center items-center">
-        <div className="text-white text-lg font-semibold">
-          {lat},{lng}
-        </div>
+        {lat && lng ? (
+          <div className="text-white text-lg font-semibold">
+            {lat} , {lng}
+          </div>
+        ) : (
+          <div className="text-white text-lg font-semibold">
+            <SearchIcon color="gray.300" /> Fetching User Location
+          </div>
+        )}
         {/* <div className="text-white font-normal text-xs">
           Brooklyn Bridge, New York, USA
         </div> */}
@@ -110,10 +149,11 @@ const CheckIn = () => {
             className="w-full h-32 resize-none rounded-md bg-[#d9d9d980]"
             value={checkInMessage}
             onChange={handleChange}
+            isRequired
           />
         </div>
         {/* <Wallets /> */}
-        {loading && (
+        {/* {loading && (
           <Audio
             height="50"
             width="100"
@@ -123,27 +163,60 @@ const CheckIn = () => {
             wrapperClass="wrapper-class"
             visible={true}
           />
-        )}
-        {!loading && (
-          <button
-            type="submit"
-            style={{
-              background: `#14aede`,
-              width: `100%`,
-              display: `flex`,
-              justifyContent: `center`,
-              alignItems: `center`,
-              paddingLeft: `20px`,
-              paddingRight: `20px`,
-              height: `35px`,
-              borderRadius: `6px`,
-              color: `white`,
-              fontWeight: `700`,
-              fontSize: `20px`,
-            }}
-          >
-            Check In
-          </button>
+        )} */}
+        {!loading ? (
+          lat && lng ? (
+            <button
+              type="submit"
+              style={{
+                background: `#14aede`,
+                width: `100%`,
+                display: `flex`,
+                justifyContent: `center`,
+                alignItems: `center`,
+                paddingLeft: `20px`,
+                paddingRight: `20px`,
+                height: `35px`,
+                borderRadius: `6px`,
+                color: `white`,
+                fontWeight: `700`,
+                fontSize: `20px`,
+              }}
+            >
+              Check In
+            </button>
+          ) : (
+            <button
+              type="submit"
+              style={{
+                background: `#14aede`,
+                width: `100%`,
+                display: `flex`,
+                justifyContent: `center`,
+                alignItems: `center`,
+                paddingLeft: `20px`,
+                paddingRight: `20px`,
+                height: `35px`,
+                borderRadius: `6px`,
+                color: `white`,
+                fontWeight: `700`,
+                fontSize: `20px`,
+              }}
+              disabled
+            >
+              Check In
+            </button>
+          )
+        ) : (
+          <Audio
+            height="50"
+            width="100"
+            color="#14aede"
+            ariaLabel="audio-loading"
+            wrapperStyle={{}}
+            wrapperClass="wrapper-class"
+            visible={true}
+          />
         )}
       </form>
       {success && (
@@ -159,7 +232,7 @@ const CheckIn = () => {
           }}
         >
           <div className="pdl-data" style={{ paddingBottom: `16px` }}>
-            PDL successfully generated : {`${checkin.pdl}`}
+            Check-In Complete : {`${checkin.pdl}`}
           </div>
           <div className="explorer">
             <a

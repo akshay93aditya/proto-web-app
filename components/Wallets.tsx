@@ -8,6 +8,7 @@ import {
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import {
+  PhantomWalletAdapter,
   GlowWalletAdapter,
   MathWalletAdapter,
   SolflareWalletAdapter,
@@ -22,6 +23,7 @@ const Wallets = ({ children }) => {
 
   const wallets = useMemo(
     () => [
+      new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
       new MathWalletAdapter(),
       new GlowWalletAdapter(),
