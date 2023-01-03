@@ -1,6 +1,6 @@
 import { Circle, Heading } from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import Image from 'next/image';
+import Link from 'next/link';
 import React, { useState } from 'react';
 
 interface Region {
@@ -23,13 +23,15 @@ export default function options() {
 	return (
 		<div className='max-w-[800px] mx-auto'>
 			<div className='h-[calc(100vh-200px)] px-6 py-2 flex flex-col'>
-				<div className='border-2 border-[#14aede] rounded-lg relative h-1/3 m-2'>
+				<Link
+					href='/checkin'
+					className='border-2 border-[#14aede] rounded-lg relative h-1/3 m-2'>
 					<Heading fontSize='2xl' color='#14aede' className='absolute left-4 bottom-2'>
 						Check-In Map
 					</Heading>
-				</div>
+				</Link>
 				<div className='flex h-1/3 relative'>
-					<div className='w-1/2 relative bg-[#6fe0a8] rounded-lg m-2'>
+					<Link href='/profile' className='w-1/2 relative bg-[#6fe0a8] rounded-lg m-2'>
 						<Circle
 							mx='auto'
 							my='16px'
@@ -42,7 +44,7 @@ export default function options() {
 						<Heading fontSize='2xl' color='#fff' className='absolute left-4 bottom-2 '>
 							Profile
 						</Heading>
-					</div>
+					</Link>
 					<div className='w-1/2 relative bg-[#DEAD2A] rounded-lg m-2'>
 						<Heading fontSize='2xl' color='#fff' className='absolute left-4 bottom-2'>
 							Check-In's
