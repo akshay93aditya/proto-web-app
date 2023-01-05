@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Audio } from 'react-loader-spinner';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
+import { create } from 'ipfs-http-client'
 export type CheckIN = {
 	lat: number;
 	lng: number;
@@ -18,6 +19,20 @@ export type pdl = {
 	pdl: string;
 };
 
+const projectId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID
+const projectSecret = process.env.NEXT_PUBLIC_INFURA_PROJECT_SECRET
+
+const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64')
+
+const client = create({
+  host: 'ipfs.infura.io',
+  port: 5001,
+  protocol: 'https',
+  headers: {
+    authorization: auth,
+  },
+})
+
 const CheckIn = () => {
 	const [lat, setlat] = useState<number>(0);
 	const [lng, setlng] = useState<number>(0);
@@ -27,7 +42,7 @@ const CheckIn = () => {
 	const [success, setSuccess] = useState<boolean>(false);
 	const [checkin, setcheckIn] = useState<pdl>();
 	const [imageCount, setImageCount] = useState<number>(0);
-	const [file, setFile] = useState<File>();
+	const [files, setFiles] = useState([]);
 
 	const { connected, publicKey } = useWallet();
 
@@ -122,12 +137,21 @@ const CheckIn = () => {
 		setcheckInMessage(e.target.value);
 	}
 
-	const handleFileSelect = (e) => {
-		if (e.target.files.length > 3) {
+	const handleFileSelect = async (e) => {
+		if (Array.from(e.target.files).length > 3) {
 			alert('You can only select a maximum of 3 files.');
 		} else {
-			setFile(e.target.files);
-			setImageCount(e.target.files.length);
+            try {
+                let uploadedFiles = []
+                await Promise.all(Array.from(e.target.files).map(async (file:File) => {
+                    const added = await client.add(file)
+                    uploadedFiles.push({ filename: file.name, hash: added.path })
+                }))
+                setFiles(uploadedFiles)
+	            setImageCount(Array.from(e.target.files).length);
+            } catch (e) {
+                console.log('Error uploading file: ', e)
+            }
 		}
 	};
 
