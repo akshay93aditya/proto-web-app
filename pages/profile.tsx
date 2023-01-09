@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-import { Editable, EditableInput, EditablePreview } from '@chakra-ui/react';
+import { Button, Editable, EditableInput, EditablePreview } from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 const DiscordLogo = () => {
@@ -64,15 +64,15 @@ const InstagramLogo = () => {
 					x2='16.09'
 					y2='42.97'
 					gradientUnits='userSpaceOnUse'>
-					<stop offset='.04' stop-color='#774ADF' />
-					<stop offset='.15' stop-color='#9248BE' />
-					<stop offset='.31' stop-color='#B24697' />
-					<stop offset='.46' stop-color='#C9447A' />
-					<stop offset='.59' stop-color='#D74369' />
-					<stop offset='.68' stop-color='#DC4363' />
-					<stop offset='.74' stop-color='#DE545E' />
-					<stop offset='.85' stop-color='#E58052' />
-					<stop offset='1' stop-color='#EEBF41' />
+					<stop offset='.04' stopColor='#774ADF' />
+					<stop offset='.15' stopColor='#9248BE' />
+					<stop offset='.31' stopColor='#B24697' />
+					<stop offset='.46' stopColor='#C9447A' />
+					<stop offset='.59' stopColor='#D74369' />
+					<stop offset='.68' stopColor='#DC4363' />
+					<stop offset='.74' stopColor='#DE545E' />
+					<stop offset='.85' stopColor='#E58052' />
+					<stop offset='1' stopColor='#EEBF41' />
 				</linearGradient>
 			</defs>
 		</svg>
@@ -81,6 +81,21 @@ const InstagramLogo = () => {
 
 export default function profile() {
 	const { connected, wallet } = useWallet();
+
+	const [userName, setUserName] = useState<string>('John Doe');
+	const [editingUserName, setEditingUserName] = useState<boolean>(false);
+
+	const [newUserName, setNewUserName] = useState<string>('');
+
+	const handleChange = (e) => {
+		setNewUserName(e.target.value);
+		setEditingUserName(true);
+	};
+
+	const handleSave = () => {
+		setUserName(newUserName);
+		setEditingUserName(false);
+	};
 
 	return (
 		<>
@@ -96,11 +111,22 @@ export default function profile() {
 						/>
 						<div className='flex items-center mt-6'>
 							<p className='font-medium'>Username</p>
-							<Editable defaultValue='John Doe' w='100%' mx='8px'>
+							<Editable defaultValue={userName} w='100%' mx='8px'>
 								<EditablePreview bg='#D9D9D9' px='8px' w='100%' py='8px' />
-								<EditableInput />
+								<EditableInput onChange={handleChange} />
 							</Editable>
 						</div>
+						{editingUserName && userName !== newUserName ? (
+							<>
+								<Button
+									colorScheme='telegram'
+									bg='#14aede'
+									color='#fff'
+									onClick={handleSave}>
+									Save
+								</Button>
+							</>
+						) : null}
 					</div>
 					<div>
 						<div className='flex w-full items-center justify-center'>
