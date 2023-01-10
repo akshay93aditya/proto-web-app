@@ -61,7 +61,7 @@ export default function Tabs() {
 		{
 			name: 'Options',
 			icon: <OptionsIcon />,
-			link: '/options',
+			link: '/',
 		},
 	];
 

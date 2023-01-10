@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Button, Editable, EditableInput, EditablePreview } from '@chakra-ui/react';
+import { Button, Center, Editable, EditableInput, EditablePreview } from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 const DiscordLogo = () => {
@@ -117,15 +117,16 @@ export default function profile() {
 							</Editable>
 						</div>
 						{editingUserName && userName !== newUserName ? (
-							<>
+							<Center>
 								<Button
 									colorScheme='telegram'
 									bg='#14aede'
 									color='#fff'
-									onClick={handleSave}>
+									onClick={handleSave}
+									mt='16px'>
 									Save
 								</Button>
-							</>
+							</Center>
 						) : null}
 					</div>
 					<div>
