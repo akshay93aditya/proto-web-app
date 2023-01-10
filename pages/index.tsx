@@ -1,7 +1,17 @@
-import { Circle, Heading } from '@chakra-ui/react';
+import {
+	Circle,
+	Heading,
+	Modal,
+	ModalBody,
+	ModalCloseButton,
+	ModalContent,
+	ModalHeader,
+	ModalOverlay,
+	useDisclosure,
+} from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Region {
 	continents: number;
@@ -20,44 +30,73 @@ export default function options() {
 	const [places, setPlaces] = useState<Places | []>([]);
 	const { connected, wallet } = useWallet();
 
-	//   <div className="w-full text-black flex flex-col justify-center items-center p-6">
-	//   Hey Everyone! This is proto, a decentralized application for creating
-	//   lifelogs. Please provide location access to the application. LFG!!
-	//   <ol>
-	//     <li>1. Click on the Location Marker icon in the footer</li>
-	//     <li>
-	//       2. Notice that a map is shown with your realtime location. Pretty
-	//       cool,right!
-	//     </li>
-	//     <li>
-	//       3. Connect your wallet and then click on the blue "check in" icon{" "}
-	//     </li>
-	//     <li>
-	//       4. Wait for your location coordinates to be fetched after which
-	//       you gotta add a check in message and click check in.{" "}
-	//     </li>
-	//     <li>
-	//       5. Voila! In just a few clicks, You have checked in and a unique
-	//       PDA has been generated. Verify the transaction on the solana
-	//       explorer.{" "}
-	//     </li>
-	//     <li>
-	//       6. Click on the hexagonal profile picture container to navigate to
-	//       the Profile page where the user would be inserting their username.
-	//     </li>
-	//     <li>
-	//       7. Click on the third footer icon to navigate to the Options page
-	//       wherein the user can redirect to the Map or their Profile pages.
-	//     </li>
-	//   </ol>
-	// </div>
+	const { isOpen, onOpen, onClose } = useDisclosure();
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			onOpen();
+		}, 6000);
+		return () => clearTimeout(timer);
+	}, []);
+
+	const WelcomeModal = () => {
+		return (
+			<Modal isOpen={isOpen} onClose={onClose}>
+				<ModalOverlay />
+				<ModalContent p={2} bg='#fff'>
+					<ModalHeader textAlign='center' pt='0.5rem'>
+						Welcome!
+					</ModalHeader>
+					<ModalCloseButton />
+					<ModalBody>
+						<div className='w-full text-black flex flex-col justify-center items-center px-6 pb-6 pt-2'>
+							Hey Everyone! This is proto, a decentralized application for creating
+							lifelogs. Please provide location access to the application. LFG!!
+							<ol>
+								<li>1. Click on the Location Marker icon in the footer</li>
+								<li>
+									2. Notice that a map is shown with your realtime location.
+									Pretty cool,right!
+								</li>
+								<li>
+									3. Connect your wallet and then click on the blue "check in"
+									icon{' '}
+								</li>
+								<li>
+									4. Wait for your location coordinates to be fetched after which
+									you gotta add a check in message and click check in.{' '}
+								</li>
+								<li>
+									5. Voila! In just a few clicks, You have checked in and a unique
+									PDA has been generated. Verify the transaction on the solana
+									explorer.{' '}
+								</li>
+								<li>
+									6. Click on the hexagonal profile picture container to navigate
+									to the Profile page where the user would be inserting their
+									username.
+								</li>
+								<li>
+									7. Click on the third footer icon to navigate to the Options
+									page wherein the user can redirect to the Map or their Profile
+									pages.
+								</li>
+							</ol>
+						</div>
+					</ModalBody>
+				</ModalContent>
+			</Modal>
+		);
+	};
 
 	return (
 		<div className='max-w-[800px] mx-auto'>
+			<WelcomeModal />
 			<div className='h-[calc(100vh-200px)] px-6 py-2 flex flex-col'>
 				<Link
 					href='/checkin'
-					className='border-2 border-[#14aede] rounded-lg relative h-1/3 m-2'>
+					className='border-2 border-[#14aede] rounded-lg relative h-1/3 m-2 bg-[url("/map-placeholder.png")] bg-no-repeat
+					bg-cover bg-'>
 					<Heading fontSize='2xl' color='#14aede' className='absolute left-4 bottom-2'>
 						Check-In Map
 					</Heading>
