@@ -92,7 +92,7 @@ export default function options() {
 	return (
 		<div className='max-w-[800px] mx-auto'>
 			<WelcomeModal />
-			<div className='h-[calc(100vh-200px)] px-6 py-2 flex flex-col'>
+			<div className='h-[calc(100vh-200px)] px-2 md:px-6 py-2 flex flex-col'>
 				<Link
 					href='/checkin'
 					className='border-2 border-[#14aede] rounded-lg relative h-1/3 m-2 bg-[url("/map-placeholder.png")] bg-no-repeat

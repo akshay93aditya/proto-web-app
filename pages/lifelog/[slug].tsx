@@ -50,7 +50,7 @@ export default function SingleLifelog() {
 					40.709139, 74.000905
 				</p>
 			</div>
-			<div className='w-[500px] mx-auto'>
+			<div className='w-auto md:w-[500px] mx-auto p-4'>
 				<p className='text-xs mt-6 opacity-70'>
 					Signature:
 					4tWNvnVxdeC4Kgb98o8pcu3jKZ4GcwSRotURB4BmaL5krVapfNJuYEZ8zZ3k3BECZthW9XnhxDHHSkfJFHJPpEgA

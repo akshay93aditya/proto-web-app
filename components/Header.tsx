@@ -1,7 +1,7 @@
 import React from 'react';
 import { Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
-import Home from './Home';
+import Button from './ConnectButton';
 import { useRouter } from 'next/router';
 
 const ProfileIcon = () => {
@@ -27,7 +27,7 @@ const ProfileIcon = () => {
 
 export default function Header() {
 	return (
-		<div className='flex py-2 px-8 justify-between items-center shadow sticky top-0 w-full z-20 bg-white'>
+		<div className='flex py-2 px-2 md:px-8 justify-between items-center shadow sticky top-0 w-full z-20 bg-white'>
 			<ProfileIcon />
 			<InputGroup>
 				<Input
@@ -42,7 +42,7 @@ export default function Header() {
 				<InputLeftElement pointerEvents='none' children={<SearchIcon color='gray.300' />} />
 			</InputGroup>
 			<div className='ml-4'>
-				<Home />
+				<Button />
 			</div>
 		</div>
 	);
