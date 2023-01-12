@@ -1,3 +1,4 @@
+import { Button, Center } from '@chakra-ui/react';
 import React, { Suspense, useEffect, useState, useRef } from 'react';
 import CheckIn from '../components/CheckIn';
 import Loading from '../components/Loading';
@@ -43,12 +44,29 @@ export default function checkin() {
 	clickedOutside(wrapperRef);
 
 	return (
-		<>
-			<div
+		<Suspense fallback={<Loading />}>
+			{/* <div
 				className='absolute bottom-[32px] right-[24px] z-10 p-2 bg-[#14AEDE] rounded-lg shadow-lg transition-all ease-in-out duration-1000 cursor-pointer'
 				onClick={() => setIsOpen(true)}>
 				<CheckinIcon2 />
-			</div>
+			</div> */}
+			<Center>
+				<Button
+					transition='all ease-in-out duration-500'
+					_hover={{ bg: '#14A1DE' }}
+					color='#fff'
+					bg='#14aede'
+					position='absolute'
+					zIndex='10'
+					bottom='0'
+					mb={6}
+					w={{ base: '90%', md: '70%' }}
+					size={{ base: 'md', md: 'lg' }}
+					colorScheme='telegram'
+					onClick={() => setIsOpen(true)}>
+					Check-in
+				</Button>
+			</Center>
 			<Map />
 			<div>
 				{isOpen ? (
@@ -59,6 +77,6 @@ export default function checkin() {
 					<div className='invisible height-0 width-0'></div>
 				)}
 			</div>
-		</>
+		</Suspense>
 	);
 }

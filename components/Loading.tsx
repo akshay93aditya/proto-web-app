@@ -4,7 +4,7 @@ import Logo from './Logo';
 export default function Loading() {
 	return (
 		<>
-			<div className='flex flex-col h-screen justify-center'>
+			<div className='flex flex-col h-screen justify-center z-10'>
 				<div className='my-48'>
 					<Logo />
 				</div>
