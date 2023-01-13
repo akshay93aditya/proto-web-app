@@ -226,8 +226,9 @@ const CheckIn = () => {
 				onSubmit={handleSubmit}>
 				<div className='flex w-full justify-center items-center pb-4 pt-4'>
 					<Textarea
-						w={{ base: '90%', md: '75%' }}
+						w={{ base: '90%', md: 3 / 5 }}
 						bgColor='#d9d9d980'
+						maxW='600px'
 						placeholder="what's up"
 						borderWidth='0.8px'
 						borderColor='#00000020'
@@ -261,7 +262,7 @@ const CheckIn = () => {
 						multiple
 						onChange={handleFileSelect}
 					/>
-					<div className='w-[90%] md:w-3/4 mx-auto flex'>
+					<div className='w-[90%] md:w-3/5 mx-auto flex max-w-[600px] justify-between items-center'>
 						<Button
 							w='70%'
 							mr='8px'
@@ -273,14 +274,9 @@ const CheckIn = () => {
 							disabled={imageCount >= 3}>
 							Upload Images
 						</Button>
-						<Button
-							w='30%'
-							bg='#89d7ef'
-							color='#fff'
-							_hover={{ bg: '#89d7ef' }}
-							_active={{ bg: '#14aede' }}>
-							{imageCount}/3
-						</Button>
+						<div className='w-[20%] rounded-lg border'>
+							<p className='text-[#14aede] font-bold'>{imageCount}/3</p>
+						</div>
 					</div>
 				</div>
 				{!loading ? (
@@ -291,11 +287,12 @@ const CheckIn = () => {
 							color='#fff'
 							bg='#14aede'
 							mb={6}
-							w={{ base: '90%', md: '75%' }}
+							maxW='600px'
+							w={{ base: '90%', md: 3 / 5 }}
 							size={{ base: 'md', md: 'lg' }}
 							colorScheme='telegram'
 							_hover={{ bg: '#14A1DE' }}>
-							Check In
+							Check-in
 						</Button>
 					) : (
 						<Button
@@ -304,7 +301,8 @@ const CheckIn = () => {
 							color='#fff'
 							bg='#14aede'
 							mb={6}
-							w={{ base: '90%', md: '70%' }}
+							w={{ base: '90%', md: 3 / 5 }}
+							maxW='600px'
 							size={{ base: 'md', md: 'lg' }}
 							colorScheme='telegram'
 							_hover={{ bg: '#14A1DE' }}
