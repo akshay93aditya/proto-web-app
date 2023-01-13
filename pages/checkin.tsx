@@ -42,7 +42,7 @@ export default function checkin() {
 					mb={{ base: 20, md: 4 }}
 					w={{ base: '90%', md: 3 / 5 }}
 					maxW='600px'
-					size={{ base: 'md', md: 'lg' }}
+					size='lg'
 					colorScheme='telegram'
 					onClick={() => setIsOpen(true)}>
 					Check-in
