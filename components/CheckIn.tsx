@@ -1,295 +1,236 @@
-import React, { useState, useEffect, useRef } from "react";
-import { idl } from "../proto";
-import { getProvider, Provider, utils } from "@project-serum/anchor";
-import { useAnchorWallet, useWallet } from "@solana/wallet-adapter-react";
-import axios from "axios";
-import { Audio } from "react-loader-spinner";
-import { Button, Input, Textarea } from "@chakra-ui/react";
-import { SearchIcon } from "@chakra-ui/icons";
-import { create } from "ipfs-http-client";
+import { useState, useEffect, useRef } from 'react'
+import { utils, Program, AnchorProvider } from '@project-serum/anchor'
+import { useWallet } from '@solana/wallet-adapter-react'
+import axios from 'axios'
+import { Audio } from 'react-loader-spinner'
+import { Button, Textarea } from '@chakra-ui/react'
+import { SearchIcon } from '@chakra-ui/icons'
+import { create } from 'ipfs-http-client'
 import {
+  clusterApiUrl,
+  ConfirmOptions,
   Connection,
   PublicKey,
   SystemProgram,
-  Transaction,
-} from "@solana/web3.js";
-import { Program } from "@project-serum/anchor";
-import { latLngToCell } from "h3-js";
+} from '@solana/web3.js'
+import { latLngToCell } from 'h3-js'
 
 export type CheckIN = {
-  lat: number;
-  lng: number;
-  loc: boolean;
-  checkInMessage: string;
-  loading: boolean;
-  success: boolean;
-  checkin: pdl;
-};
+  lat: number
+  lng: number
+  loc: boolean
+  checkInMessage: string
+  loading: boolean
+  success: boolean
+  checkin: pdl
+}
 
 export type pdl = {
-  pdl: string;
-};
+  pdl: string
+}
 
-const projectId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
-const projectSecret = process.env.NEXT_PUBLIC_INFURA_PROJECT_SECRET;
+const projectId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID
+const projectSecret = process.env.NEXT_PUBLIC_INFURA_PROJECT_SECRET
 
-const auth =
-  "Basic " + Buffer.from(projectId + ":" + projectSecret).toString("base64");
+const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64')
 
 const client = create({
-  host: "ipfs.infura.io",
+  host: 'ipfs.infura.io',
   port: 5001,
-  protocol: "https",
+  protocol: 'https',
   headers: {
     authorization: auth,
   },
-});
+})
 
 const CheckIn = () => {
-  const [lat, setlat] = useState<number>(0);
-  const [lng, setlng] = useState<number>(0);
-  const [checkInMessage, setcheckInMessage] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
-  const [checkin, setcheckIn] = useState<pdl>();
-  const [imageCount, setImageCount] = useState<number>(0);
-  const [files, setFiles] = useState([]);
+  const [lat, setlat] = useState<number>(0)
+  const [lng, setlng] = useState<number>(0)
+  const [checkInMessage, setcheckInMessage] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
+  const [checkInSignature, setCheckInSignature] = useState<string>('')
+  const [pdl, setPdl] = useState<string>('')
+  const [success, setSuccess] = useState<boolean>(false)
+  const [checkin, setcheckIn] = useState<object>()
+  const [imageCount, setImageCount] = useState<number>(0)
+  const [files, setFiles] = useState([])
 
-  const wallet = useWallet();
+  const wallet = useWallet()
 
   useEffect(() => {
     const options = {
       enableHighAccuracy: false,
       timeout: 5000,
       maximumAge: Infinity,
-    };
-    function success(position) {
-      setlat(position.coords.latitude);
-      setlng(position.coords.longitude);
     }
-    function error(err) {
-      console.warn(`ERROR(${err.code}): ${err.message}`);
+    function success(position: any) {
+      setlat(position.coords.latitude)
+      setlng(position.coords.longitude)
     }
-    navigator.geolocation.getCurrentPosition(success, error, options);
-  }, []);
+    function error(err: any) {
+      console.warn(`ERROR(${err.code}): ${err.message}`)
+    }
+    navigator.geolocation.getCurrentPosition(success, error, options)
+  }, [])
 
-  const opts = {
-    preflightCommitment: "processed",
-  };
+  const opts: ConfirmOptions = {
+    preflightCommitment: 'processed',
+  }
 
-  const network =
-    "https://solana-devnet.g.alchemy.com/v2/6nOSXYNw7tWYjDzvQ2oLBVBfMg6Gj9Ho";
+  const network = clusterApiUrl('devnet')
 
   const getProvider = () => {
-    const connection = new Connection(network);
-    const provider = new Provider(
-      connection,
-      window.solana,
-      opts.preflightCommitment
-    );
-    return provider;
-  };
+    const connection = new Connection(network, opts.preflightCommitment)
+    const provider = new AnchorProvider(connection, window.solana, opts)
+    return provider
+  }
 
   const getProgram = async () => {
+    const provider = getProvider()
     // Get metadata about your solana program
-    const idl = await Program.fetchIdl(process.env.PROGRAM_ID, getProvider());
+    const idl = await Program.fetchIdl(process.env.NEXT_PUBLIC_PROGRAM_ID, provider)
     // Create a program that you can call
-    return new Program(idl, process.env.PROGRAM_ID, getProvider());
-  };
+    return new Program(idl, process.env.NEXT_PUBLIC_PROGRAM_ID, provider)
+  }
+
+  let baseUrl = 'https://proto-api.onrender.com'
 
   async function CheckInTransaction(mongoId: string) {
-    const provider = getProvider();
-    const hindex = latLngToCell(lat, lng, 7);
+    const provider = getProvider()
+    const hindex = latLngToCell(lat, lng, 7)
 
-    if (!provider) {
-      return null;
-    }
+    const program = await getProgram()
 
-    const program = await getProgram();
-
-    const [checkInPDA, _] = PublicKey.findProgramAddressSync(
+    const [checkInPDA] = PublicKey.findProgramAddressSync(
       [
-        utils.bytes.utf8.encode("check-in-data"),
+        utils.bytes.utf8.encode('check-in-data'),
         provider.wallet.publicKey.toBuffer(),
         Buffer.from(mongoId),
         Buffer.from(hindex),
       ],
       program.programId
-    );
+    )
 
     try {
-      await program.rpc.checkIn(hindex, mongoId, checkInMessage, {
-        user: provider.wallet.publicKey,
-        checkIn: checkInPDA,
-        systemProgram: SystemProgram.programId,
-      });
-
-      const account = await program.account.CheckInData.fetch(
-        provider.wallet.publicKey
-      );
-      console.log(account);
+      const sig = await program.methods
+        .checkIn(hindex, mongoId, checkInMessage)
+        .accounts({
+          user: provider.wallet.publicKey,
+          checkIn: checkInPDA,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc()
+      // save generated pdl for this checkin
+      const checkinPdlResponse = await axios({
+        method: 'post',
+        url: `${baseUrl}/checkins/${mongoId}/pdls`,
+        data: {
+          pdl: checkInPDA,
+        },
+      })
+      setPdl(checkInPDA.toString())
+      setcheckIn(checkinPdlResponse.data)
+      setCheckInSignature(sig)
     } catch (error) {
-      console.error(error);
-      throw new Error(error);
+      console.error(error)
+      throw new Error(error)
     }
   }
 
-  // function getProvider() {
-  //   if (!wallet) {
-  //     return null;
-  //   }
-  //   const network =
-  //     "https://solana-devnet.g.alchemy.com/v2/6nOSXYNw7tWYjDzvQ2oLBVBfMg6Gj9Ho";
-  //   const connection = new Connection(network, "processed");
-
-  //   const provider = new anchor.AnchorProvider(connection, wallet, {
-  //     preflightCommitment: "processed",
-  //   });
-  //   return provider;
-  // }
-
-  // async function CheckInTransaction(mongoId: string) {
-  //   const provider = getProvider();
-  //   const hindex = latLngToCell(lat, lng, 7);
-
-  //   if (!provider) {
-  //     return null;
-  //   }
-
-  //   const program = new Program(idl, process.env.PROGRAM_ID, provider);
-
-  //   const [checkInPDA, _] = PublicKey.findProgramAddressSync(
-  //     [
-  //       anchor.utils.bytes.utf8.encode("check-in-data"),
-  //       provider.wallet.publicKey.toBuffer(),
-  //       Buffer.from(mongoId),
-  //       Buffer.from(hindex),
-  //     ],
-  //     program.programId
-  //   );
-
-  //   try {
-  //     await program.methods
-  //       .checkIn(hindex, mongoId, checkInMessage)
-  //       .accounts({
-  //         user: provider.wallet.publicKey,
-  //         checkIn: checkInPDA,
-  //         systemProgram: SystemProgram.programId,
-  //       })
-  //       .rpc();
-
-  //     const account = await program.account.CheckInData.fetch(
-  //       provider.wallet.publicKey
-  //     );
-  //     console.log(account);
-  //   } catch (error) {
-  //     console.error(error);
-  //     throw new Error(error);
-  //   }
-  // }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function handleSubmit(e: any) {
+    e.preventDefault()
     try {
-      setLoading(true);
-      setSuccess(false);
+      setLoading(true)
+      setSuccess(false)
       if (!wallet.publicKey) {
-        alert("Wallet Not Connected");
-        setLoading(false);
-        return;
+        alert('Wallet Not Connected')
+        setLoading(false)
+        return
       }
 
       const usersResponse = await axios({
-        method: "get",
-        url: "https://proto-api.onrender.com/users",
+        method: 'get',
+        url: `${baseUrl}/users`,
         params: { wallet_address: wallet.publicKey.toString() },
-      });
-      //   console.log(usersResponse);
-      //   console.log(usersResponse.data.length);
+      })
 
       if (usersResponse.data.length) {
         const checkinResponse = await axios({
-          method: "post",
-          url: "https://proto-api.onrender.com/checkins",
+          method: 'post',
+          url: `${baseUrl}/checkins`,
           data: {
             user_wallet_address: wallet.publicKey.toString(),
             message: checkInMessage,
             latitude: lat,
             longitude: lng,
-            files,
+            ...(files && { files }),
           },
-        });
-        // console.log(usersResponse);
-        // // console.log(usersResponse.data.length);
-        setcheckIn(checkinResponse.data);
-        //CheckInTransaction(checkinResponse.data._id);
-        setLoading(false);
-        setSuccess(true);
-        console.log(checkinResponse.data);
+        })
+        await CheckInTransaction(checkinResponse.data._id)
+        setcheckIn(checkinResponse.data)
+        setLoading(false)
+        setSuccess(true)
       } else {
-        const newUserResponse = await axios({
-          method: "post",
-          url: "https://proto-api.onrender.com/users",
+        await axios({
+          method: 'post',
+          url: `${baseUrl}/users`,
           data: {
             wallet_address: wallet.publicKey.toString(),
           },
-        });
-
-        // console.log(newUserResponse);
+        })
 
         const checkinResponse = await axios({
-          method: "post",
-          url: "https://proto-api.onrender.com/checkins",
+          method: 'post',
+          url: `${baseUrl}/checkins`,
           data: {
             user_wallet_address: wallet.publicKey.toString(),
             message: checkInMessage,
             latitude: lat,
             longitude: lng,
-            files,
+            ...(files && { files }),
           },
-        });
-        setcheckIn(checkinResponse.data);
-        // CheckInTransaction(checkinResponse.data._id);
-        setLoading(false);
-        setSuccess(true);
-        console.log(checkinResponse.data);
+        })
+        await CheckInTransaction(checkinResponse.data._id)
+        setcheckIn(checkinResponse.data)
+        setLoading(false)
+        setSuccess(true)
       }
     } catch (error) {
-      console.log(error);
-      setLoading(false);
-      setSuccess(false);
+      console.log(error)
+      setLoading(false)
+      setSuccess(false)
     }
   }
 
-  function handleChange(e) {
-    setcheckInMessage(e.target.value);
+  function handleChange(e: any) {
+    setcheckInMessage(e.target.value)
   }
 
-  const handleFileSelect = async (e) => {
+  const handleFileSelect = async (e: any) => {
     if (Array.from(e.target.files).length > 3) {
-      alert("You can only select a maximum of 3 files.");
+      alert('You can only select a maximum of 3 files.')
     } else {
       try {
-        let uploadedFiles = [];
+        let uploadedFiles = []
         await Promise.all(
           Array.from(e.target.files).map(async (file: File) => {
-            const added = await client.add(file);
-            uploadedFiles.push({ filename: file.name, hash: added.path });
+            const added = await client.add(file)
+            uploadedFiles.push({ filename: file.name, hash: added.path })
           })
-        );
-        setFiles(uploadedFiles);
-        setImageCount(Array.from(e.target.files).length);
+        )
+        setFiles(uploadedFiles)
+        setImageCount(Array.from(e.target.files).length)
       } catch (e) {
-        console.log("Error uploading file: ", e);
+        console.log('Error uploading file: ', e)
       }
     }
-  };
+  }
 
-  const fileInput = useRef(null);
+  const fileInput = useRef(null)
 
-  const handleClick = (e) => {
-    fileInput.current.click();
-  };
+  const handleClick = () => {
+    fileInput.current.click()
+  }
 
   return (
     <div className="w-full flex flex-col justify-center items-center pb-4 absolute bottom-0 bg-white z-10 transition-height duration-500 ease-in-out h-max visible">
@@ -309,8 +250,7 @@ const CheckIn = () => {
       </div>
       <form
         className="w-full flex flex-col justify-center items-center pl-5 pr-5"
-        onSubmit={handleSubmit}
-      >
+        onSubmit={handleSubmit}>
         <div className="flex w-full justify-center items-center pb-4 pt-4">
           <Textarea
             bgColor="#d9d9d980"
@@ -342,7 +282,7 @@ const CheckIn = () => {
             id="file"
             max={3}
             // value=''
-            style={{ display: "none" }}
+            style={{ display: 'none' }}
             ref={fileInput}
             multiple
             onChange={handleFileSelect}
@@ -352,20 +292,18 @@ const CheckIn = () => {
             mr="8px"
             bg="#89d7ef"
             color="#fff"
-            _hover={{ bg: "#89d7ef" }}
-            _active={{ bg: "#14aede" }}
+            _hover={{ bg: '#89d7ef' }}
+            _active={{ bg: '#14aede' }}
             onClick={handleClick}
-            disabled={imageCount >= 3}
-          >
+            disabled={imageCount >= 3}>
             Upload Images
           </Button>
           <Button
             w="30%"
             bg="#89d7ef"
             color="#fff"
-            _hover={{ bg: "#89d7ef" }}
-            _active={{ bg: "#14aede" }}
-          >
+            _hover={{ bg: '#89d7ef' }}
+            _active={{ bg: '#14aede' }}>
             {imageCount}/3
           </Button>
         </div>
@@ -374,41 +312,39 @@ const CheckIn = () => {
             <button
               type="submit"
               style={{
-                background: `#14aede`,
-                width: `100%`,
-                display: `flex`,
-                justifyContent: `center`,
-                alignItems: `center`,
-                paddingLeft: `20px`,
-                paddingRight: `20px`,
-                height: `35px`,
-                borderRadius: `6px`,
-                color: `white`,
-                fontWeight: `700`,
-                fontSize: `20px`,
-              }}
-            >
+                background: '#14aede',
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                paddingLeft: '20px',
+                paddingRight: '20px',
+                height: '35px',
+                borderRadius: '6px',
+                color: 'white',
+                fontWeight: '700',
+                fontSize: '20px',
+              }}>
               Check In
             </button>
           ) : (
             <button
               type="submit"
               style={{
-                background: `#14aede`,
-                width: `100%`,
-                display: `flex`,
-                justifyContent: `center`,
-                alignItems: `center`,
-                paddingLeft: `20px`,
-                paddingRight: `20px`,
-                height: `35px`,
-                borderRadius: `6px`,
-                color: `white`,
-                fontWeight: `700`,
-                fontSize: `20px`,
+                background: '#14aede',
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                paddingLeft: '20px',
+                paddingRight: '20px',
+                height: '35px',
+                borderRadius: '6px',
+                color: 'white',
+                fontWeight: '700',
+                fontSize: '20px',
               }}
-              disabled
-            >
+              disabled>
               Check In
             </button>
           )
@@ -428,29 +364,28 @@ const CheckIn = () => {
         <div
           className="pdl"
           style={{
-            display: `flex`,
-            flexDirection: `column`,
-            justifyContent: `center`,
-            alignItems: `center`,
-            width: `100%`,
-            marginTop: `16px`,
-          }}
-        >
-          <div className="pdl-data" style={{ paddingBottom: `16px` }}>
-            Check-In Complete : {`${checkin.pdl}`}
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+            marginTop: '16px',
+          }}>
+          <div className="pdl-data" style={{ paddingBottom: '16px' }}>
+            Check-In Complete : {`${pdl}`}
           </div>
           <div className="explorer">
             <a
-              href={`https://explorer.solana.com/address/${checkin.pdl}?cluster=devnet`}
-              target="_blank"
-            >
+              href={`https://explorer.solana.com/tx/${checkInSignature}?cluster=devnet`}
+              rel="noreferrer"
+              target="_blank">
               View in Explorer
             </a>
           </div>
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default CheckIn;
+export default CheckIn

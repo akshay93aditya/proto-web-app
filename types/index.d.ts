@@ -1,5 +1,7 @@
 export {};
-declare const window: Window &
-  typeof globalThis & {
+
+declare global {
+  interface Window {
     solana: any;
-  };
+  }
+}
