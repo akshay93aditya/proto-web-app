@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { idl, Work } from "../proto";
+import { idl } from "../proto";
 import * as anchor from "@project-serum/anchor";
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import axios from "axios";
@@ -7,9 +7,15 @@ import { Audio } from "react-loader-spinner";
 import { Button, Input, Textarea } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import { create } from "ipfs-http-client";
-import { Connection, SystemProgram, Transaction } from "@solana/web3.js";
+import {
+  Connection,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
 import { Program } from "@project-serum/anchor";
-import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+import { latLngToCell } from "h3-js";
+
 export type CheckIN = {
   lat: number;
   lng: number;
@@ -39,45 +45,9 @@ const client = create({
   },
 });
 
-export const getProvider = (wallet: anchor.Wallet) => {
-  /* create the provider and return it to the caller */
-  /* network set to local network for now */
-
-  const opts = {
-    preflightCommitment: "processed" as anchor.web3.ConfirmOptions,
-  };
-
-  const connectionURI =
-    process.env.NEXT_PUBLIC_RPC_URL || "https://api.devnet.solana.com";
-  const connection = new anchor.web3.Connection(
-    connectionURI,
-    opts.preflightCommitment
-  );
-
-  const provider = new anchor.AnchorProvider(
-    connection,
-    wallet,
-    opts.preflightCommitment
-  );
-  return provider;
-};
-
-export const anchorProgram = (wallet: anchor.Wallet) => {
-  const provider = getProvider(wallet);
-  const IDL = idl as anchor.Idl;
-  const program = new anchor.Program(
-    IDL,
-    process.env.PROGRAM_ID,
-    provider
-  ) as unknown as Program<Work>;
-
-  return program;
-};
-
 const CheckIn = () => {
   const [lat, setlat] = useState<number>(0);
   const [lng, setlng] = useState<number>(0);
-  // const [address, setAddress] = useState("");
   const [checkInMessage, setcheckInMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
@@ -86,6 +56,7 @@ const CheckIn = () => {
   const [files, setFiles] = useState([]);
 
   const wallet = useAnchorWallet();
+
   useEffect(() => {
     const options = {
       enableHighAccuracy: false,
@@ -102,30 +73,71 @@ const CheckIn = () => {
     navigator.geolocation.getCurrentPosition(success, error, options);
   }, []);
 
+  function getProvider() {
+    if (!wallet) {
+      return null;
+    }
+    const network =
+      "https://solana-devnet.g.alchemy.com/v2/6nOSXYNw7tWYjDzvQ2oLBVBfMg6Gj9Ho";
+    const connection = new Connection(network, "processed");
+
+    const provider = new anchor.AnchorProvider(connection, wallet, {
+      preflightCommitment: "processed",
+    });
+    return provider;
+  }
+
+  async function CheckInTransaction(mongoId: string) {
+    const provider = getProvider();
+    const hindex = latLngToCell(lat, lng, 7);
+
+    if (!provider) {
+      return null;
+    }
+
+    const program = new Program(idl, process.env.PROGRAM_ID, provider);
+
+    const [checkInPDA, _] = PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode("check-in-data"),
+        provider.wallet.publicKey.toBuffer(),
+        Buffer.from(mongoId),
+        Buffer.from(hindex),
+      ],
+      program.programId
+    );
+
+    try {
+      await program.methods
+        .checkIn(hindex, mongoId, checkInMessage)
+        .accounts({
+          user: provider.wallet.publicKey,
+          checkIn: checkInPDA,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc();
+
+      const account = await program.account.CheckInData.fetch(
+        provider.wallet.publicKey
+      );
+      console.log(account);
+    } catch (error) {
+      console.error(error);
+      throw new Error(error);
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     try {
       setLoading(true);
       setSuccess(false);
-      if (!wallet) {
+      if (!wallet.publicKey) {
         alert("Wallet Not Connected");
         setLoading(false);
         return;
       }
-      const program = anchorProgram(wallet as NodeWallet);
-      async () => {
-        const connection = new Connection(
-          process.env.ANCHOR_PROVIDER_URL || "https://api.devnet.solana.com"
-        );
-        const recentBlockhash = await connection.getLatestBlockhash();
-        const transaction = new Transaction().add(
-          SystemProgram.transfer({
-            fromPubkey: wallet.publicKey,
-            toPubkey: wallet.publicKey,
-            lamports: 20,
-          })
-        );
-      };
+
       const usersResponse = await axios({
         method: "get",
         url: "https://proto-api.onrender.com/users",
@@ -143,11 +155,13 @@ const CheckIn = () => {
             message: checkInMessage,
             latitude: lat,
             longitude: lng,
+            files,
           },
         });
         // console.log(usersResponse);
         // // console.log(usersResponse.data.length);
         setcheckIn(checkinResponse.data);
+        CheckInTransaction(checkinResponse.data._id);
         setLoading(false);
         setSuccess(true);
         console.log(checkinResponse.data);
@@ -170,9 +184,11 @@ const CheckIn = () => {
             message: checkInMessage,
             latitude: lat,
             longitude: lng,
+            files,
           },
         });
         setcheckIn(checkinResponse.data);
+        CheckInTransaction(checkinResponse.data._id);
         setLoading(false);
         setSuccess(true);
         console.log(checkinResponse.data);
