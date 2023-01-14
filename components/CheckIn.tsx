@@ -77,7 +77,7 @@ const CheckIn = () => {
     preflightCommitment: 'processed',
   }
 
-  const network = clusterApiUrl('devnet')
+  const network = 'https://solana-devnet.g.alchemy.com/v2/6nOSXYNw7tWYjDzvQ2oLBVBfMg6Gj9Ho'
 
   const getProvider = () => {
     const connection = new Connection(network, opts.preflightCommitment)
