@@ -46,7 +46,7 @@ export default function lifelog() {
 		<div>
 			<Center>
 				<div className=' z-0 block mt-10'>
-					<ol className='relative border-l border-[#14AEDE]'>
+					<ol className='relative border-l border-primary'>
 						{timelineData.map((data, index) => (
 							<Timeline
 								key={index}

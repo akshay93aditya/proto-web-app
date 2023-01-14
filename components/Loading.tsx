@@ -1,5 +1,5 @@
 import React from 'react';
-import Logo from './Logo';
+import Logo from '../dynamic/Logo';
 
 export default function Loading() {
 	return (

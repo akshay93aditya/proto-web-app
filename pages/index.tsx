@@ -97,11 +97,11 @@ export default function options() {
 				<div className='h-[calc(100vh-200px)] px-2 md:px-6 py-2 flex flex-col'>
 					<Link
 						href='/checkin'
-						className='border-2 border-[#14aede] rounded-lg relative h-1/3 m-2 bg-[url("/map-placeholder.png")] bg-no-repeat
+						className='border-2 border-primary rounded-lg relative h-1/3 m-2 bg-[url("/map-placeholder.png")] bg-no-repeat
 					bg-cover bg-'>
 						<Heading
 							fontSize='2xl'
-							color='#14aede'
+							color='primary'
 							className='absolute left-4 bottom-2'>
 							Check-In Map
 						</Heading>
@@ -157,7 +157,7 @@ export default function options() {
 				<div>
 					{connected ? (
 						<>
-							<div className='bg-[#14AEDE] mx-8 py-2  rounded-md mt-4'>
+							<div className='bg-primary mx-8 py-2  rounded-md mt-4'>
 								<p className='text-center  text-white font-medium cursor-pointer'>
 									Connected
 								</p>

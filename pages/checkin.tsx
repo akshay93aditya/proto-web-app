@@ -25,11 +25,6 @@ export default function checkin() {
 
 	return (
 		<Suspense fallback={<Loading />}>
-			{/* <div
-				className='absolute bottom-[32px] right-[24px] z-10 p-2 bg-[#14AEDE] rounded-lg shadow-lg transition-all ease-in-out duration-1000 cursor-pointer'
-				onClick={() => setIsOpen(true)}>
-				<CheckinIcon2 />
-			</div> */}
 			<Center>
 				<Button
 					transition='all ease-in-out duration-500'

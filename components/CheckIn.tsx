@@ -211,8 +211,8 @@ const CheckIn = () => {
 		const icon = name.charAt(0);
 		return (
 			<div
-				className={`mx-1 flex flex-col items-center justify-center cursor-pointer p-2 box-border transition-all ease-in-out duration-200 h-[54px] ${
-					name === selectedTag && 'border-[1.5px] border-[#14aede] rounded-md'
+				className={`mx-1 flex flex-col items-center justify-center cursor-pointer p-2 box-border transition-all ease-in-out duration-200 h-[60px] ${
+					name === selectedTag && 'border-[1.5px] border-primary rounded-md'
 				}`}
 				onClick={() => setSelectedTag(name)}>
 				<Circle bg={color} p={1} size='24px'>
@@ -252,7 +252,7 @@ const CheckIn = () => {
 
 	return (
 		<div className='w-full flex flex-col justify-center items-center pb-4 absolute bottom-0 bg-white z-10 transition-height duration-500 ease-in-out h-max visible'>
-			<div className='bg-[#14AEDE] m-0 p-0 w-full h-12 flex flex-col justify-center items-center'>
+			<div className='bg-primary m-0 p-0 w-full h-12 flex flex-col justify-center items-center'>
 				{lat && lng ? (
 					<div className='text-white text-lg font-semibold'>
 						{lat} , {lng}
@@ -276,7 +276,7 @@ const CheckIn = () => {
 						bgColor='#d9d9d980'
 						placeholder="what's up?"
 						borderWidth='0.8px'
-						borderColor='#14aede'
+						borderColor='primary'
 						className='w-full h-32 resize-none rounded-md bg-[#d9d9d980]'
 						value={checkInMessage}
 						onChange={handleChange}
@@ -305,7 +305,7 @@ const CheckIn = () => {
 							w='90%'
 							mr='8px'
 							// size='sm'
-							color='#14aede'
+							color='primary'
 							variant='outline'
 							colorScheme='telegram'
 							onClick={handleClick}
@@ -314,7 +314,7 @@ const CheckIn = () => {
 							{/* ({imageCount}/3) */}
 						</Button>
 						<div className='w-[10%] rounded-lg border borderColor'>
-							<p className='text-[#14aede] font-md text-center'>{imageCount}/3</p>
+							<p className='text-primary font-md text-center'>{imageCount}/3</p>
 						</div>
 					</div>
 				</div>

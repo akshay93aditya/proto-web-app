@@ -30,7 +30,7 @@ export default function SingleLifelog() {
 			</Flex>
 			<Center>
 				<div className=' z-0 block mt-4'>
-					<ol className='relative border-l border-[#14AEDE]'>
+					<ol className='relative border-l border-primary'>
 						<Timeline
 							title='Attending Solana Hackerhouse!'
 							location='XYZ, USA'
@@ -45,7 +45,7 @@ export default function SingleLifelog() {
 					</ol>
 				</div>
 			</Center>
-			<div className='bg-[#14aede]'>
+			<div className='bg-primary'>
 				<p className='text-center text-white font-semibold text-lg p-2'>
 					40.709139, 74.000905
 				</p>
