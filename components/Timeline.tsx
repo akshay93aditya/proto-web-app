@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import React from 'react';
-import { TimeLineDot } from '../dynamic/Timeline';
+import { TimeLineDot } from '../dynamic/CheckInIcons';
 
 export default function Timeline(props) {
 	const router = useRouter();

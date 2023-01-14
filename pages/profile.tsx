@@ -1,23 +1,32 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Button, Center, Editable, EditableInput, EditablePreview } from '@chakra-ui/react';
+import { Button, Center, Circle, Editable, EditableInput, EditablePreview } from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { DiscordLogo, InstagramLogo, TwitterLogo } from '../dynamic/Profile';
+import { WalletName } from '@solana/wallet-adapter-base';
 
 export default function profile() {
 	const { connected, wallet } = useWallet();
 
-	const [userName, setUserName] = useState<string>('John Doe');
+	const [userName, setUserName] = useState<string>('');
 	const [editingUserName, setEditingUserName] = useState<boolean>(false);
-
 	const [newUserName, setNewUserName] = useState<string>('');
 
-	const handleChange = (e) => {
+	const [selectedImage, setSelectedImage] = useState<any>(null);
+
+	function onImageUpload(e) {
+		const file = e.target.files[0];
+		const reader = new FileReader();
+		reader.onloadend = () => setSelectedImage(reader.result);
+		reader.readAsDataURL(file);
+	}
+
+	const handleChangeUserName = (e) => {
 		setNewUserName(e.target.value);
 		setEditingUserName(true);
 	};
 
-	const handleSave = () => {
+	const handleSaveUserName = () => {
 		setUserName(newUserName);
 		setEditingUserName(false);
 	};
@@ -27,18 +36,25 @@ export default function profile() {
 			<div>
 				<div className='flex align-middle flex-col justify-between h-[calc(100vh-200px)] max-w-[800px] mx-auto'>
 					<div className='p-6'>
-						<Image
-							src='/profileplaceholder.svg'
-							alt='profile placeholder'
-							width={150}
-							height={150}
-							className='mx-auto'
-						/>
+						<label className='relative'>
+							<Image
+								src={selectedImage ? selectedImage : '/profileplaceholder.svg'}
+								alt='/'
+								className='mx-auto rounded-full object-cover h-32 w-32 cursor-pointer'
+								height={10}
+								width={10}
+							/>
+							<input
+								type='file'
+								className='absolute top-0 left-0 w-32 h-32 m-auto opacity-0 cursor-pointer z-0'
+								onChange={onImageUpload}
+							/>
+						</label>
 						<div className='flex items-center mt-6'>
 							<p className='font-medium'>Username</p>
 							<Editable defaultValue={userName} w='100%' mx='8px'>
-								<EditablePreview bg='#D9D9D9' px='8px' w='100%' py='8px' />
-								<EditableInput onChange={handleChange} />
+								<EditablePreview px='8px' w='100%' py='8px' />
+								<EditableInput onChange={handleChangeUserName} py='8px' />
 							</Editable>
 						</div>
 						{editingUserName && userName !== newUserName ? (
@@ -47,7 +63,7 @@ export default function profile() {
 									colorScheme='telegram'
 									bg='primary'
 									color='#fff'
-									onClick={handleSave}
+									onClick={handleSaveUserName}
 									mt='16px'>
 									Save
 								</Button>
@@ -67,7 +83,7 @@ export default function profile() {
 										Connected
 									</p>
 								</div>
-								<p className='text-center '>You're connected to proto via</p>
+								<p className='text-center '>You're connected to proto via </p>
 							</>
 						) : null}
 					</div>
