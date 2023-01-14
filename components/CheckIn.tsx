@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { idl } from "../proto";
-import * as anchor from "@project-serum/anchor";
-import { useAnchorWallet } from "@solana/wallet-adapter-react";
+import { getProvider, Provider, utils } from "@project-serum/anchor";
+import { useAnchorWallet, useWallet } from "@solana/wallet-adapter-react";
 import axios from "axios";
 import { Audio } from "react-loader-spinner";
 import { Button, Input, Textarea } from "@chakra-ui/react";
@@ -55,7 +55,7 @@ const CheckIn = () => {
   const [imageCount, setImageCount] = useState<number>(0);
   const [files, setFiles] = useState([]);
 
-  const wallet = useAnchorWallet();
+  const wallet = useWallet();
 
   useEffect(() => {
     const options = {
@@ -73,19 +73,29 @@ const CheckIn = () => {
     navigator.geolocation.getCurrentPosition(success, error, options);
   }, []);
 
-  function getProvider() {
-    if (!wallet) {
-      return null;
-    }
-    const network =
-      "https://solana-devnet.g.alchemy.com/v2/6nOSXYNw7tWYjDzvQ2oLBVBfMg6Gj9Ho";
-    const connection = new Connection(network, "processed");
+  const opts = {
+    preflightCommitment: "processed",
+  };
 
-    const provider = new anchor.AnchorProvider(connection, wallet, {
-      preflightCommitment: "processed",
-    });
+  const network =
+    "https://solana-devnet.g.alchemy.com/v2/6nOSXYNw7tWYjDzvQ2oLBVBfMg6Gj9Ho";
+
+  const getProvider = () => {
+    const connection = new Connection(network);
+    const provider = new Provider(
+      connection,
+      window.solana,
+      opts.preflightCommitment
+    );
     return provider;
-  }
+  };
+
+  const getProgram = async () => {
+    // Get metadata about your solana program
+    const idl = await Program.fetchIdl(process.env.PROGRAM_ID, getProvider());
+    // Create a program that you can call
+    return new Program(idl, process.env.PROGRAM_ID, getProvider());
+  };
 
   async function CheckInTransaction(mongoId: string) {
     const provider = getProvider();
@@ -95,11 +105,11 @@ const CheckIn = () => {
       return null;
     }
 
-    const program = new Program(idl, process.env.PROGRAM_ID, provider);
+    const program = await getProgram();
 
     const [checkInPDA, _] = PublicKey.findProgramAddressSync(
       [
-        anchor.utils.bytes.utf8.encode("check-in-data"),
+        utils.bytes.utf8.encode("check-in-data"),
         provider.wallet.publicKey.toBuffer(),
         Buffer.from(mongoId),
         Buffer.from(hindex),
@@ -108,14 +118,11 @@ const CheckIn = () => {
     );
 
     try {
-      await program.methods
-        .checkIn(hindex, mongoId, checkInMessage)
-        .accounts({
-          user: provider.wallet.publicKey,
-          checkIn: checkInPDA,
-          systemProgram: SystemProgram.programId,
-        })
-        .rpc();
+      await program.rpc.checkIn(hindex, mongoId, checkInMessage, {
+        user: provider.wallet.publicKey,
+        checkIn: checkInPDA,
+        systemProgram: SystemProgram.programId,
+      });
 
       const account = await program.account.CheckInData.fetch(
         provider.wallet.publicKey
@@ -126,6 +133,60 @@ const CheckIn = () => {
       throw new Error(error);
     }
   }
+
+  // function getProvider() {
+  //   if (!wallet) {
+  //     return null;
+  //   }
+  //   const network =
+  //     "https://solana-devnet.g.alchemy.com/v2/6nOSXYNw7tWYjDzvQ2oLBVBfMg6Gj9Ho";
+  //   const connection = new Connection(network, "processed");
+
+  //   const provider = new anchor.AnchorProvider(connection, wallet, {
+  //     preflightCommitment: "processed",
+  //   });
+  //   return provider;
+  // }
+
+  // async function CheckInTransaction(mongoId: string) {
+  //   const provider = getProvider();
+  //   const hindex = latLngToCell(lat, lng, 7);
+
+  //   if (!provider) {
+  //     return null;
+  //   }
+
+  //   const program = new Program(idl, process.env.PROGRAM_ID, provider);
+
+  //   const [checkInPDA, _] = PublicKey.findProgramAddressSync(
+  //     [
+  //       anchor.utils.bytes.utf8.encode("check-in-data"),
+  //       provider.wallet.publicKey.toBuffer(),
+  //       Buffer.from(mongoId),
+  //       Buffer.from(hindex),
+  //     ],
+  //     program.programId
+  //   );
+
+  //   try {
+  //     await program.methods
+  //       .checkIn(hindex, mongoId, checkInMessage)
+  //       .accounts({
+  //         user: provider.wallet.publicKey,
+  //         checkIn: checkInPDA,
+  //         systemProgram: SystemProgram.programId,
+  //       })
+  //       .rpc();
+
+  //     const account = await program.account.CheckInData.fetch(
+  //       provider.wallet.publicKey
+  //     );
+  //     console.log(account);
+  //   } catch (error) {
+  //     console.error(error);
+  //     throw new Error(error);
+  //   }
+  // }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -161,7 +222,7 @@ const CheckIn = () => {
         // console.log(usersResponse);
         // // console.log(usersResponse.data.length);
         setcheckIn(checkinResponse.data);
-        CheckInTransaction(checkinResponse.data._id);
+        //CheckInTransaction(checkinResponse.data._id);
         setLoading(false);
         setSuccess(true);
         console.log(checkinResponse.data);
@@ -188,7 +249,7 @@ const CheckIn = () => {
           },
         });
         setcheckIn(checkinResponse.data);
-        CheckInTransaction(checkinResponse.data._id);
+        // CheckInTransaction(checkinResponse.data._id);
         setLoading(false);
         setSuccess(true);
         console.log(checkinResponse.data);
