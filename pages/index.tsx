@@ -26,7 +26,7 @@ interface Places {
 	landmarks: number;
 }
 
-export default function options() {
+export default function Options() {
 	const [regions, setRegions] = useState<Region | []>([]);
 	const [places, setPlaces] = useState<Places | []>([]);
 	const { connected, wallet } = useWallet();

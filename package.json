@@ -22,6 +22,7 @@
 		"@solana/wallet-adapter-torus": "^0.11.25",
 		"@solana/wallet-adapter-wallets": "^0.19.9",
 		"@solana/web3.js": "^1.72.0",
+		"@tanstack/react-query": "^4.22.0",
 		"axios": "^1.2.1",
 		"classnames": "^2.3.2",
 		"clsx": "^1.2.1",

@@ -41,7 +41,7 @@ const timelineData = [
 	},
 ];
 
-export default function lifelog() {
+export default function Lifelog() {
 	return (
 		<div>
 			<Center>
