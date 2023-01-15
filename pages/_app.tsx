@@ -5,6 +5,8 @@ import Layout from '../components/Layout';
 import Wallets from '../components/Wallets';
 
 const theme = extendTheme({
+	initialColorMode: 'light',
+	useSystemColorMode: false,
 	colors: {
 		primary: '#14aede',
 	},
