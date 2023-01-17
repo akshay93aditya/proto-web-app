@@ -183,6 +183,7 @@ const CheckIn = () => {
 						latitude: lat,
 						longitude: lng,
 						...(files && { files }),
+						tag: selectedTag,
 					},
 				});
 				await CheckInTransaction(checkinResponse.data._id);
