@@ -6,7 +6,7 @@ import dateFormat from 'dateformat';
 export default function Timeline(props) {
 	const router = useRouter();
 	const { message, createdAt, files, latitude, longitude, tag, index, arrLength } = props;
-	const date = dateFormat(createdAt, 'dd mmmm yyyy, HH:MM:ss');
+	const dateTime = dateFormat(createdAt, 'dd mmmm yyyy, HH:MM:ss');
 	const numImages = files.length;
 	return (
 		<>
@@ -21,7 +21,7 @@ export default function Timeline(props) {
 				</h3>
 				{/* <p className='flex items-center mb-1 text-sm text-gray-900'>@{location}</p> */}
 				<time className='block mb-2 text-sm font-normal leading-none text-gray-600 '>
-					{date}
+					{dateTime}
 				</time>
 				<p className=' font-normal text-gray-500 text-xs'>Uploaded {numImages} images</p>
 				<p className='flex items-center text-sm text-gray-800'>

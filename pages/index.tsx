@@ -1,4 +1,5 @@
 import {
+	Button,
 	Center,
 	Circle,
 	Flex,
@@ -17,6 +18,7 @@ import Link from 'next/link';
 import React, { useState, useEffect, Suspense } from 'react';
 import Loading from '../components/Loading';
 import { FailedCheckInIcon, SuccessCheckInIcon } from '../dynamic/CheckInIcons';
+import Shepherd from 'shepherd.js';
 
 interface Region {
 	continents: number;
@@ -35,6 +37,7 @@ export default function Options() {
 	const [places, setPlaces] = useState<Places | []>([]);
 	const { connected, publicKey } = useWallet();
 	const [checkInCount, setCheckInCount] = useState();
+	const [tour, setTour] = useState(null);
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -58,12 +61,33 @@ export default function Options() {
 		if (publicKey) getTimelineData();
 	}, [publicKey]);
 
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			onOpen();
-		}, 6000);
-		return () => clearTimeout(timer);
-	}, []);
+	// useEffect(() => {
+	// 	const tour = new Shepherd.Tour({
+	// 		useModalOverlay: true,
+	// 	});
+	// 	setTour(tour);
+	// 	return () => {
+	// 		tour.complete();
+	// 		// tour.destroy();
+	// 	};
+	// }, []);
+
+	// const step1Ref = React.useRef(null);
+
+	// useEffect(() => {
+	// 	if (tour) {
+	// 		tour.addStep('step-1', {
+	// 			text: 'This is step 1',
+	// 			attachTo: step1Ref,
+	// 			buttons: [
+	// 				{
+	// 					text: 'Next',
+	// 					action: tour.next,
+	// 				},
+	// 			],
+	// 		});
+	// 	}
+	// }, [tour]);
 
 	const WelcomeModal = () => {
 		return (
@@ -119,6 +143,7 @@ export default function Options() {
 		return (
 			<div className='max-w-[800px] mx-auto'>
 				<WelcomeModal />
+				{/* <Button onClick={() => tour.start()}>start tour</Button> */}
 				<div className='h-[calc(100vh-200px)] px-2 md:px-6 py-2 flex flex-col'>
 					<Link
 						href='/checkin'
@@ -186,7 +211,9 @@ export default function Options() {
 							<Heading
 								fontSize='2xl'
 								color='#fff'
-								className='absolute left-4 bottom-2'>
+								className='absolute left-4 bottom-2'
+								// ref={step1Ref}
+							>
 								Regions
 							</Heading>
 						</div>

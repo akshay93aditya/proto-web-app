@@ -37,6 +37,7 @@
 		"react-icons": "^4.7.1",
 		"react-loader-spinner": "^5.3.4",
 		"react-toastify": "^9.1.1",
+		"shepherd.js": "^11.0.1",
 		"styled-components": "^5.3.6"
 	},
 	"devDependencies": {
