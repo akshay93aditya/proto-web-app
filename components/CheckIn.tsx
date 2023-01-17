@@ -14,6 +14,7 @@ import {
 	SystemProgram,
 } from '@solana/web3.js';
 import { latLngToCell } from 'h3-js';
+import { FailedCheckInIcon } from '../dynamic/CheckInIcons';
 
 export type CheckIN = {
 	lat: number;
@@ -182,6 +183,7 @@ const CheckIn = () => {
 						latitude: lat,
 						longitude: lng,
 						...(files && { files }),
+						tag: selectedTag,
 					},
 				});
 				await CheckInTransaction(checkinResponse.data._id);
@@ -297,7 +299,7 @@ const CheckIn = () => {
 
 	return (
 		<div className='w-full flex flex-col justify-center items-center pb-4 absolute bottom-0 bg-white z-10 transition-height duration-500 ease-in-out h-max visible'>
-			<div className='bg-primary m-0 p-0 w-full h-12 flex flex-col justify-center items-center'>
+			<div className='bg-primary m-0 p-0 w-full h-12 flex flex-col justify-center items-center relative'>
 				{lat && lng ? (
 					<div className='text-white text-lg font-semibold'>
 						{lat} , {lng}
@@ -310,6 +312,9 @@ const CheckIn = () => {
 				{/* <div className="text-white font-normal text-xs">
           Brooklyn Bridge, New York, USA
         </div> */}
+				<div className='absolute right-[60px] md:right-[300px]'>
+					<FailedCheckInIcon />
+				</div>
 			</div>
 			<form
 				className=' flex flex-col justify-center items-center md:px-5 px-2 py-6 md:py-2 w-[90%] md:[w-3/5] max-w-[600px]'

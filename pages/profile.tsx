@@ -1,12 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import {
 	Button,
 	Center,
-	Circle,
-	Editable,
-	EditableInput,
-	EditablePreview,
 	FormControl,
 	FormHelperText,
 	FormLabel,
@@ -16,16 +12,32 @@ import {
 } from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { DiscordLogo, InstagramLogo, TwitterLogo } from '../dynamic/Profile';
-import { WalletName } from '@solana/wallet-adapter-base';
+import axios from 'axios';
 
 export default function Profile() {
 	const { connected, wallet, publicKey } = useWallet();
-
 	const [userName, setUserName] = useState<string>(null);
 	const [editingUserName, setEditingUserName] = useState<boolean>(false);
 	const [newUserName, setNewUserName] = useState<string>(null);
+	const [_id, set_id] = useState<string>(null);
 
 	const [selectedImage, setSelectedImage] = useState<any>(null);
+
+	useEffect(() => {
+		const fetchUserName = async () => {
+			try {
+				const res = await axios.get('https://proto-api.onrender.com/users', {
+					params: { wallet_address: publicKey },
+				});
+				setUserName(res.data[0].name);
+				set_id(res.data[0]._id);
+				console.log(_id);
+			} catch (e) {
+				console.log(e);
+			}
+		};
+		if (publicKey) fetchUserName();
+	}, [publicKey]);
 
 	function onImageUpload(e) {
 		const file = e.target.files[0];
@@ -42,6 +54,16 @@ export default function Profile() {
 	const handleSaveUserName = () => {
 		setUserName(newUserName);
 		setEditingUserName(false);
+		const updateUserName = async () => {
+			try {
+				const res = await axios.patch(`https://proto-api.onrender.com/users/${_id}`, {
+					name: newUserName,
+				});
+			} catch (e) {
+				console.log(e);
+			}
+		};
+		updateUserName();
 	};
 
 	return (
@@ -116,6 +138,7 @@ export default function Profile() {
 							<div className='mt-8'>
 								<p className=' text-gray-500 text-sm'>Wallet Address</p>
 								<p className='text-gray-600 '>{publicKey?.toBase58()}</p>
+								<p>{_id}</p>
 							</div>
 						)}
 					</div>

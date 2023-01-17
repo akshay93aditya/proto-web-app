@@ -28,14 +28,12 @@ export default function SingleLifelog() {
 					<NearbyImage />
 				</Flex>
 			</Flex>
-			<Center>
+			{/* <Center>
 				<div className=' z-0 block mt-4'>
 					<ol className='relative border-l border-primary'>
 						<Timeline
-							title='Attending Solana Hackerhouse!'
-							location='XYZ, USA'
-							date='19 November 2022'
-							time='18:21:34'
+							message='Attending Solana Hackerhouse!'
+							createdAt='19 November 2022, 18:21:34'
 							numimages={2}
 							latitude={40.709139}
 							longitude={74.000905}
@@ -58,7 +56,7 @@ export default function SingleLifelog() {
 				<p className='text-[10px] opacity-60 mt-2'>
 					Signer: EuKeq6QN1UB88LgSXvjyoSd3t49F3ykggrFfpuWotA1K
 				</p>
-			</div>
+			</div> */}
 		</div>
 	);
 }

@@ -22,9 +22,11 @@
 		"@solana/wallet-adapter-torus": "^0.11.25",
 		"@solana/wallet-adapter-wallets": "^0.19.9",
 		"@solana/web3.js": "^1.72.0",
+		"@tanstack/react-query": "^4.22.0",
 		"axios": "^1.2.1",
 		"classnames": "^2.3.2",
 		"clsx": "^1.2.1",
+		"dateformat": "^5.0.3",
 		"framer-motion": "^8.0.1",
 		"h3-js": "^4.0.1",
 		"ipfs-http-client": "^59.0.0",
@@ -35,6 +37,7 @@
 		"react-icons": "^4.7.1",
 		"react-loader-spinner": "^5.3.4",
 		"react-toastify": "^9.1.1",
+		"shepherd.js": "^11.0.1",
 		"styled-components": "^5.3.6"
 	},
 	"devDependencies": {

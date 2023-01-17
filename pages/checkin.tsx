@@ -4,7 +4,7 @@ import CheckIn from '../components/CheckIn';
 import Loading from '../components/Loading';
 import Map from '../components/Map';
 
-export default function checkin() {
+export default function Checkin() {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	function clickedOutside(ref) {
 		useEffect(() => {

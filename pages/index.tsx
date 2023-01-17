@@ -1,5 +1,8 @@
 import {
+	Button,
+	Center,
 	Circle,
+	Flex,
 	Heading,
 	Modal,
 	ModalBody,
@@ -10,9 +13,12 @@ import {
 	useDisclosure,
 } from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import axios from 'axios';
 import Link from 'next/link';
 import React, { useState, useEffect, Suspense } from 'react';
 import Loading from '../components/Loading';
+import { FailedCheckInIcon, SuccessCheckInIcon } from '../dynamic/CheckInIcons';
+import Shepherd from 'shepherd.js';
 
 interface Region {
 	continents: number;
@@ -26,19 +32,62 @@ interface Places {
 	landmarks: number;
 }
 
-export default function options() {
+export default function Options() {
 	const [regions, setRegions] = useState<Region | []>([]);
 	const [places, setPlaces] = useState<Places | []>([]);
-	const { connected, wallet } = useWallet();
+	const { connected, publicKey } = useWallet();
+	const [checkInCount, setCheckInCount] = useState();
+	const [tour, setTour] = useState(null);
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	useEffect(() => {
-		const timer = setTimeout(() => {
-			onOpen();
-		}, 6000);
-		return () => clearTimeout(timer);
-	}, []);
+		async function getTimelineData() {
+			try {
+				const timelineResponse = await axios.get(
+					'https://proto-api.onrender.com/checkins',
+					{
+						params: { user_wallet_address: publicKey },
+					}
+				);
+				setCheckInCount(timelineResponse.data.length);
+				console.log(checkInCount);
+				console.log(timelineResponse.data.length);
+			} catch (err) {
+				console.log(err);
+			}
+		}
+
+		if (publicKey) getTimelineData();
+	}, [publicKey]);
+
+	// useEffect(() => {
+	// 	const tour = new Shepherd.Tour({
+	// 		useModalOverlay: true,
+	// 	});
+	// 	setTour(tour);
+	// 	return () => {
+	// 		tour.complete();
+	// 		// tour.destroy();
+	// 	};
+	// }, []);
+
+	// const step1Ref = React.useRef(null);
+
+	// useEffect(() => {
+	// 	if (tour) {
+	// 		tour.addStep('step-1', {
+	// 			text: 'This is step 1',
+	// 			attachTo: step1Ref,
+	// 			buttons: [
+	// 				{
+	// 					text: 'Next',
+	// 					action: tour.next,
+	// 				},
+	// 			],
+	// 		});
+	// 	}
+	// }, [tour]);
 
 	const WelcomeModal = () => {
 		return (
@@ -94,6 +143,7 @@ export default function options() {
 		return (
 			<div className='max-w-[800px] mx-auto'>
 				<WelcomeModal />
+				{/* <Button onClick={() => tour.start()}>start tour</Button> */}
 				<div className='h-[calc(100vh-200px)] px-2 md:px-6 py-2 flex flex-col'>
 					<Link
 						href='/checkin'
@@ -127,11 +177,32 @@ export default function options() {
 							</Heading>
 						</Link>
 						<div className='w-1/2 relative bg-[#DEAD2A] rounded-lg m-2'>
+							{checkInCount && (
+								<Center>
+									<div className='flex mt-2'>
+										<div className='flex flex-col items-center'>
+											<Heading fontSize='42px' color='#fff'>
+												0
+											</Heading>
+											<SuccessCheckInIcon />
+										</div>
+										<Heading fontSize='42px' color='#fff' mx='8px'>
+											/
+										</Heading>
+										<div className='flex flex-col items-center'>
+											<Heading fontSize='42px' color='#fff'>
+												{checkInCount}
+											</Heading>
+											<FailedCheckInIcon />
+										</div>
+									</div>
+								</Center>
+							)}
 							<Heading
 								fontSize='2xl'
 								color='#fff'
 								className='absolute left-4 bottom-2'>
-								Check-In's
+								Check-Ins
 							</Heading>
 						</div>
 					</div>
@@ -140,7 +211,9 @@ export default function options() {
 							<Heading
 								fontSize='2xl'
 								color='#fff'
-								className='absolute left-4 bottom-2'>
+								className='absolute left-4 bottom-2'
+								// ref={step1Ref}
+							>
 								Regions
 							</Heading>
 						</div>

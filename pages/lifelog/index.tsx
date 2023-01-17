@@ -1,62 +1,45 @@
 import { Center } from '@chakra-ui/react';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Timeline from '../../components/Timeline';
+import axios from 'axios';
+import { useWallet } from '@solana/wallet-adapter-react';
 
-const timelineData = [
-	{
-		title: 'Attending Solana Hackerhouse!',
-		location: 'XYZ, USA',
-		date: '19 November 2022',
-		time: '18:21:34',
-		numimages: 2,
-		latitude: 40.709139,
-		longitude: 74.000905,
-	},
-	{
-		title: 'Attending Solana Hackerhouse!',
-		location: 'XYZ, USA',
-		date: '19 November 2022',
-		time: '18:21:34',
-		numimages: 2,
-		latitude: 40.709139,
-		longitude: 74.000905,
-	},
-	{
-		title: 'Attending Solana Hackerhouse!',
-		location: 'XYZ, USA',
-		date: '19 November 2022',
-		time: '18:21:34',
-		numimages: 2,
-		latitude: 40.709139,
-		longitude: 74.000905,
-	},
-	{
-		title: 'Attending Solana Hackerhouse!',
-		location: 'XYZ, USA',
-		date: '19 November 2022',
-		time: '18:21:34',
-		numimages: 2,
-		latitude: 40.709139,
-		longitude: 74.000905,
-	},
-];
+export default function Lifelog() {
+	const [timelineData, setTimelineData] = useState([]);
+	const { publicKey } = useWallet();
+	useEffect(() => {
+		async function getTimelineData() {
+			try {
+				const timelineResponse = await axios.get(
+					'https://proto-api.onrender.com/checkins',
+					{
+						params: { user_wallet_address: publicKey },
+					}
+				);
+				setTimelineData(timelineResponse.data);
+			} catch (err) {
+				console.log(err);
+			}
+		}
 
-export default function lifelog() {
+		if (publicKey) getTimelineData();
+	}, [publicKey]);
+
 	return (
 		<div>
 			<Center>
 				<div className=' z-0 block my-10'>
 					<ol className='relative border-l border-primary'>
-						{timelineData.map((data, index) => (
+						{timelineData?.map((data, index) => (
 							<Timeline
 								key={index}
-								title={data.title}
+								message={data.message}
 								location={data.location}
-								date={data.date}
-								time={data.time}
-								numimages={data.numimages}
+								createdAt={data.createdAt}
+								files={data.files}
 								latitude={data.latitude}
 								longitude={data.longitude}
+								tag={data?.tag}
 								index={index}
 								arrLength={timelineData.length}
 							/>
