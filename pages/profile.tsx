@@ -13,31 +13,57 @@ import {
 import { useWallet } from '@solana/wallet-adapter-react';
 import { DiscordLogo, InstagramLogo, TwitterLogo } from '../dynamic/Profile';
 import axios from 'axios';
+import Options from '../components/Options';
+
+// import { Orbis } from '@orbisclub/orbis-sdk';
+
+// let orbis = new Orbis();
 
 export default function Profile() {
-	const { connected, wallet, publicKey } = useWallet();
+	const wallet = useWallet();
 	const [userName, setUserName] = useState<string>(null);
 	const [editingUserName, setEditingUserName] = useState<boolean>(false);
 	const [newUserName, setNewUserName] = useState<string>(null);
 	const [_id, set_id] = useState<string>(null);
 
 	const [selectedImage, setSelectedImage] = useState<any>(null);
+	const [user, setUser] = useState(null);
+
+	// async function connect() {
+	// 	let res = await orbis.connect_v2({
+	// 		provider: window?.phantom?.solana,
+	// 		chain: 'solana',
+	// 	});
+	// 	if (res.status == 200) {
+	// 		setUser(res.did);
+	// 		console.log(user);
+	// 	} else {
+	// 		console.log('Error connecting to Ceramic: ', res);
+	// 		alert('Error connecting to Ceramic.');
+	// 	}
+	// }
+
+	// async function isConnected() {
+	// 	const res = await orbis.isConnected();
+	// 	if (res.status == 200) {
+	// 		console.log(res);
+	// 	}
+	// }
 
 	useEffect(() => {
 		const fetchUserName = async () => {
 			try {
 				const res = await axios.get('https://proto-api.onrender.com/users', {
-					params: { wallet_address: publicKey },
+					params: { wallet_address: wallet.publicKey },
 				});
 				setUserName(res.data[0].name);
 				set_id(res.data[0]._id);
-				console.log(_id);
 			} catch (e) {
 				console.log(e);
 			}
 		};
-		if (publicKey) fetchUserName();
-	}, [publicKey]);
+		if (wallet.publicKey) fetchUserName();
+	}, [wallet.publicKey]);
 
 	function onImageUpload(e) {
 		const file = e.target.files[0];
@@ -69,7 +95,10 @@ export default function Profile() {
 	return (
 		<>
 			<div>
-				<div className='flex align-middle flex-col justify-between h-[calc(100vh-200px)] max-w-[600px] mx-auto'>
+				{/* <Button onClick={() => connect()}>Orbis</Button>
+				<Button onClick={() => isConnected()}>connected?</Button> */}
+
+				<div className=' align-middle h-[calc(100vh-200px)] max-w-[600px] mx-auto'>
 					<div className='p-6'>
 						<label className='relative'>
 							<Image
@@ -134,30 +163,13 @@ export default function Profile() {
 								</p>
 							)}
 						</div>
-						{connected && (
-							<div className='mt-8'>
-								<p className=' text-gray-500 text-sm'>Wallet Address</p>
-								<p className='text-gray-600 '>{publicKey?.toBase58()}</p>
-								<p>{_id}</p>
-							</div>
-						)}
+						<Options />
 					</div>
-					<div>
-						<div className='flex w-full items-center justify-center'>
-							<DiscordLogo />
-							<TwitterLogo />
-							<InstagramLogo />
-						</div>
-						{connected ? (
-							<>
-								<div className='bg-primary mx-6 p-2 rounded-md mt-4'>
-									<p className='text-center  text-white font-medium cursor-pointer'>
-										Connected
-									</p>
-								</div>
-								{/* <p className='text-center '>You're connected to proto via </p> */}
-							</>
-						) : null}
+
+					<div className='flex w-full items-center justify-center pb-24'>
+						<DiscordLogo />
+						<TwitterLogo />
+						<InstagramLogo />
 					</div>
 				</div>
 			</div>
