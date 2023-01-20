@@ -1,6 +1,6 @@
 import { Button, Center } from '@chakra-ui/react';
 import React, { Suspense, useEffect, useState, useRef } from 'react';
-import CheckIn from '../components/CheckIn';
+import CheckIn from '../components/CheckInForm';
 import Loading from '../components/Loading';
 import Map from '../components/Map';
 

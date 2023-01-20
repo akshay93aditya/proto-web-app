@@ -2,7 +2,16 @@
 const nextConfig = {
 	reactStrictMode: true,
 	swcMinify: true,
-	exclude: ['react-native-fs'],
+	images: {
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: 'ipfs.io',
+				port: '',
+				pathname: '/ipfs/**',
+			},
+		],
+	},
 };
 
 module.exports = nextConfig;
