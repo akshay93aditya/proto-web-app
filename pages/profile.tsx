@@ -17,9 +17,9 @@ import axios from 'axios';
 import Options from '../components/Options';
 import { create } from 'ipfs-http-client';
 
-// import { Orbis } from '@orbisclub/orbis-sdk';
+import { Orbis } from '@orbisclub/orbis-sdk';
 
-// let orbis = new Orbis();
+let orbis = new Orbis();
 
 const projectId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
 const projectSecret = process.env.NEXT_PUBLIC_INFURA_PROJECT_SECRET;
@@ -38,47 +38,57 @@ const client = create({
 export default function Profile() {
 	const wallet = useWallet();
 	const [userName, setUserName] = useState<string>(null);
-	const [profilePic, setProfilePic] = useState<any>(null);
+	const [profilePic, setProfilePic] = useState<string>(null);
 	const [editingUserName, setEditingUserName] = useState<boolean>(false);
 	const [newUserName, setNewUserName] = useState<string>(null);
 	const [newProfilePic, setNewProfilePic] = useState<any>(null);
-	const [_id, set_id] = useState<string>(null);
+	const [user, setUser] = useState<string>(null);
 
-	// const [selectedImage, setSelectedImage] = useState<any>(null);
+	async function connect() {
+		let res = await orbis.connect_v2({
+			provider: window?.phantom?.solana,
+			chain: 'solana',
+		});
 
-	useEffect(() => {
-		const fetchUserDetails = async () => {
-			try {
-				const res = await axios.get('https://proto-api.onrender.com/users', {
-					params: { wallet_address: wallet.publicKey },
-				});
-				setUserName(res.data[0].name);
-				setProfilePic(res.data[0].profile_picture);
-				set_id(res.data[0]._id);
-			} catch (e) {
-				console.log(e);
-			}
-		};
-		if (wallet.publicKey) fetchUserDetails();
-	}, [wallet.publicKey]);
+		if (res.status == 200) {
+			setUser(res.did);
+			console.log(user);
+			const { data, error } = await orbis.getDids(wallet.publicKey);
+			console.log('connect fn:', data[0]);
+			setUserName(data[0].details.profile.username);
+			setProfilePic(data[0].details.profile.pfp);
+		} else {
+			console.log('Error connecting to Ceramic: ', res);
+			alert('Error connecting to Ceramic.');
+		}
+	}
+
+	async function isConnected() {
+		const res = await orbis.isConnected();
+		if (res.status == 200) {
+			console.log(res);
+		}
+	}
+
+	async function getPosts() {
+		const { data, error } = await orbis.getPosts({ tag: 'proto' });
+		console.log(data);
+	}
 
 	const handleImageUpload = async (e: any) => {
 		try {
 			const file = e.target.files[0];
 			const added = await client.add(file);
-			setNewProfilePic({ filename: file.name, hash: added.path });
-			console.log(newProfilePic);
+			if (added) {
+				setNewProfilePic(`https://ipfs.io/ipfs/${added.path}`);
+				console.log(newProfilePic);
+			}
 
 			if (newProfilePic) {
-				const imageUploadResponse = await axios.patch(
-					`https://proto-api.onrender.com/users/${_id}`,
-					{
-						profile_picture: {
-							hash: newProfilePic.hash,
-							filename: newProfilePic.filename,
-						},
-					}
-				);
+				const imageUploadResponse = await orbis.updateProfile({
+					username: userName,
+					pfp: newProfilePic,
+				});
 				console.log(imageUploadResponse);
 				if (imageUploadResponse.status === 200) setProfilePic(newProfilePic);
 			}
@@ -97,8 +107,9 @@ export default function Profile() {
 		setEditingUserName(false);
 		const updateUserName = async () => {
 			try {
-				const res = await axios.patch(`https://proto-api.onrender.com/users/${_id}`, {
-					name: newUserName,
+				await orbis.updateProfile({
+					username: newUserName,
+					pfp: profilePic,
 				});
 			} catch (e) {
 				console.log(e);
@@ -110,18 +121,15 @@ export default function Profile() {
 	return (
 		<>
 			<div>
-				{/* <Button onClick={() => connect()}>Orbis</Button>
-				<Button onClick={() => isConnected()}>connected?</Button> */}
+				<Button onClick={() => connect()}>Orbis</Button>
+				<Button onClick={() => isConnected()}>connected?</Button>
+				<Button onClick={() => getPosts()}>getPosts</Button>
 
 				<div className=' align-middle h-[calc(100vh-200px)] max-w-[600px] mx-auto'>
 					<div className='p-6'>
 						<label className='relative'>
 							<ChakraImage
-								src={
-									profilePic
-										? `https://ipfs.io/ipfs/${profilePic?.hash}`
-										: '/profileplaceholder.svg'
-								}
+								src={profilePic ? profilePic : '/profileplaceholder.svg'}
 								alt='/'
 								objectFit='cover'
 								className='mx-auto rounded-full object-cover h-32 w-32 cursor-pointer border border-[#b6b8b9]'

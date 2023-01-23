@@ -15,6 +15,7 @@ import {
 } from '@solana/web3.js';
 import { latLngToCell } from 'h3-js';
 import { FailedCheckInIcon } from '../dynamic/CheckInIcons';
+import { Orbis } from '@orbisclub/orbis-sdk';
 
 export type CheckIN = {
 	lat: number;
@@ -44,6 +45,8 @@ const client = create({
 	},
 });
 
+let orbis = new Orbis();
+
 const CheckIn = () => {
 	const [lat, setlat] = useState<number>(0);
 	const [lng, setlng] = useState<number>(0);
@@ -55,9 +58,28 @@ const CheckIn = () => {
 	const [checkin, setcheckIn] = useState<object>();
 	const [imageCount, setImageCount] = useState<number>(0);
 	const [files, setFiles] = useState([]);
-	const [selectedTag, setSelectedTag] = useState<string>(null);
+	const [selectedTag, setSelectedTag] = useState<any>([{ title: 'proto', slug: 'proto' }]);
+
+	const [user, setUser] = useState<string>('');
 
 	const wallet = useWallet();
+
+	async function connect() {
+		let res = await orbis.connect_v2({
+			provider: window?.phantom?.solana,
+			chain: 'solana',
+		});
+
+		if (res.status == 200) {
+			setUser(res.did);
+			console.log(user);
+			const { data, error } = await orbis.getDids(wallet.publicKey);
+			console.log('connect fn:', data[0]);
+		} else {
+			console.log('Error connecting to Ceramic: ', res);
+			alert('Error connecting to Ceramic.');
+		}
+	}
 
 	const toast = useToast();
 	const successToast = () =>
@@ -142,7 +164,7 @@ const CheckIn = () => {
 			// save generated pdl for this checkin
 			const checkinPdlResponse = await axios({
 				method: 'post',
-				url: `${baseUrl}/checkins/${mongoId}/pdls`,
+				url: `${baseUrl}/checkins/ ${mongoId}/pdls`,
 				data: {
 					pdl: checkInPDA,
 				},
@@ -167,56 +189,69 @@ const CheckIn = () => {
 				return;
 			}
 
-			const usersResponse = await axios({
-				method: 'get',
-				url: `${baseUrl}/users`,
-				params: { wallet_address: wallet.publicKey.toString() },
-			});
-
-			if (usersResponse.data.length) {
-				const checkinResponse = await axios({
-					method: 'post',
-					url: `${baseUrl}/checkins`,
+			const usersResponse = await orbis.isConnected();
+			if (usersResponse.status == 200) {
+				// const checkinResponse = await axios({
+				// 	method: 'post',
+				// 	url: `${baseUrl}/checkins`,
+				// 	data: {
+				// 		user_wallet_address: wallet.publicKey.toString(),
+				// 		message: checkInMessage,
+				// 		latitude: lat,
+				// 		longitude: lng,
+				// 		...(files && { files }),
+				// 		tag: selectedTag,
+				// 	},
+				// });
+				console.log(usersResponse);
+				const checkinResponse = await orbis.createPost({
+					body: checkInMessage,
 					data: {
-						user_wallet_address: wallet.publicKey.toString(),
-						message: checkInMessage,
 						latitude: lat,
 						longitude: lng,
-						...(files && { files }),
-						tag: selectedTag,
 					},
+					tags: selectedTag,
+					files: files,
 				});
-				await CheckInTransaction(checkinResponse.data._id);
-				setcheckIn(checkinResponse.data);
-				setLoading(false);
-				setSuccess(true);
-				// successToast();
-			} else {
-				await axios({
-					method: 'post',
-					url: `${baseUrl}/users`,
-					data: {
-						wallet_address: wallet.publicKey.toString(),
-					},
-				});
-
-				const checkinResponse = await axios({
-					method: 'post',
-					url: `${baseUrl}/checkins`,
-					data: {
-						user_wallet_address: wallet.publicKey.toString(),
-						message: checkInMessage,
-						latitude: lat,
-						longitude: lng,
-						...(files && { files }),
-					},
-				});
-				await CheckInTransaction(checkinResponse.data._id);
-				setcheckIn(checkinResponse.data);
-				setLoading(false);
-				setSuccess(true);
+				if (checkinResponse.status === 200) {
+					console.log(checkinResponse);
+					await CheckInTransaction(checkinResponse.doc);
+					setcheckIn(checkinResponse.data);
+					setLoading(false);
+					setSuccess(true);
+				}
+				// await CheckInTransaction(checkinResponse.data.doc);
+				// setcheckIn(checkinResponse.data);
+				// setLoading(false);
+				// setSuccess(true);
 				// successToast();
 			}
+			// else {
+			// 	await axios({
+			// 		method: 'post',
+			// 		url: `${baseUrl}/users`,
+			// 		data: {
+			// 			wallet_address: wallet.publicKey.toString(),
+			// 		},
+			// 	});
+
+			// 	const checkinResponse = await axios({
+			// 		method: 'post',
+			// 		url: `${baseUrl}/checkins`,
+			// 		data: {
+			// 			user_wallet_address: wallet.publicKey.toString(),
+			// 			message: checkInMessage,
+			// 			latitude: lat,
+			// 			longitude: lng,
+			// 			...(files && { files }),
+			// 		},
+			// 	});
+			// 	await CheckInTransaction(checkinResponse.data._id);
+			// 	setcheckIn(checkinResponse.data);
+			// 	setLoading(false);
+			// 	setSuccess(true);
+			// 	// successToast();
+			// }
 		} catch (error) {
 			console.log(error);
 			setLoading(false);
@@ -237,7 +272,10 @@ const CheckIn = () => {
 				await Promise.all(
 					Array.from(e.target.files).map(async (file: File) => {
 						const added = await client.add(file);
-						uploadedFiles.push({ filename: file.name, hash: added.path });
+						uploadedFiles.push({
+							url: `ipfs://${added.path}`,
+							gateway: 'https://proto.infura-ipfs.io',
+						});
 					})
 				);
 				setFiles(uploadedFiles);
@@ -254,45 +292,58 @@ const CheckIn = () => {
 		fileInput.current.click();
 	};
 
-	const Tag = ({ name, color }) => {
-		const icon = name.charAt(0);
+	const Tag = ({ title, slug, color }) => {
+		const icon = title.charAt(0);
+
+		const handleClick = () => {
+			let newTag = [{ title: 'proto', slug: 'proto' }];
+			newTag.push({ title: title, slug: slug });
+			setSelectedTag(newTag);
+		};
+
 		return (
 			<div
 				className={`mx-1 flex flex-col items-center justify-center cursor-pointer p-2 box-border transition-all ease-in-out duration-200 h-[60px] ${
-					name === selectedTag && 'border-[1.5px] border-primary rounded-md'
+					title === selectedTag[1]?.title && 'border-[1.5px] border-primary rounded-md'
 				}`}
-				onClick={() => setSelectedTag(name)}>
+				onClick={handleClick}>
 				<Circle bg={color} p={1} size='24px'>
 					<p className='font-black text-white'>{icon}</p>
 				</Circle>
-				<p className='text-gray-400 text-[8px] font-medium text-center'>{name}</p>
+				<p className='text-gray-400 text-[8px] font-medium text-center'>{title}</p>
 			</div>
 		);
 	};
 
 	const tags = [
 		{
-			name: 'Event',
+			title: 'Event',
+			slug: 'Event',
 			color: '#85b9bc',
 		},
 		{
-			name: 'Landmark',
+			title: 'Landmark',
+			slug: 'Landmark',
 			color: '#efbc89',
 		},
 		{
-			name: 'Food',
+			title: 'Food',
+			slug: 'Food',
 			color: '#dead2a',
 		},
 		{
-			name: 'Market',
+			title: 'Market',
+			slug: 'Market',
 			color: '#83b8c8',
 		},
 		{
-			name: 'Tourism',
+			title: 'Tourism',
+			slug: 'Tourism',
 			color: '#ccfe55',
 		},
 		{
-			name: 'Pt of Interest',
+			title: 'Pt of Interest',
+			slug: 'PtOfInterest',
 			color: '#89d7ef',
 		},
 	];
@@ -309,9 +360,6 @@ const CheckIn = () => {
 						<SearchIcon color='gray.300' /> Fetching User Location
 					</div>
 				)}
-				{/* <div className="text-white font-normal text-xs">
-          Brooklyn Bridge, New York, USA
-        </div> */}
 				<div className='absolute right-[60px] md:right-[300px]'>
 					<FailedCheckInIcon />
 				</div>
@@ -345,7 +393,14 @@ const CheckIn = () => {
         )} */}
 				<div className='flex justify-between w-full mb-4 box-border'>
 					{tags.map((tag) => {
-						return <Tag name={tag.name} color={tag.color} key={tag.name} />;
+						return (
+							<Tag
+								title={tag.title}
+								color={tag.color}
+								key={tag.title}
+								slug={tag.slug}
+							/>
+						);
 					})}
 				</div>
 				<div className='flex mb-4 w-full'>
