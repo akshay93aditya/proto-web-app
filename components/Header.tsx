@@ -3,16 +3,17 @@ import { Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import Button from './ConnectButton';
 import { useRouter } from 'next/router';
-import { ProfileIcon } from '../dynamic/Profile';
+import { LogoSmall } from '../dynamic/Logo';
 
 export default function Header() {
 	const router = useRouter();
 
 	return (
 		<div className='flex py-2 px-2 md:px-8 justify-between items-center shadow sticky top-0 w-full z-20 bg-white'>
-			<ProfileIcon onClick={() => router.push('/profile')} />
-			{router.pathname === '/checkin' && (
-				<InputGroup>
+			{/* <ProfileIcon onClick={() => router.push('/profile')} /> */}
+			<LogoSmall onClick={() => router.push('/')} />
+			{router.pathname === '/' && (
+				<InputGroup ml='4'>
 					<Input
 						placeholder='Search'
 						variant='filled'

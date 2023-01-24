@@ -9,42 +9,117 @@ import {
 	Input,
 	InputGroup,
 	InputRightElement,
+	Image as ChakraImage,
 } from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { DiscordLogo, InstagramLogo, TwitterLogo } from '../dynamic/Profile';
 import axios from 'axios';
+import Options from '../components/Options';
+import { create } from 'ipfs-http-client';
+
+import { Orbis } from '@orbisclub/orbis-sdk';
+
+let orbis = new Orbis();
+
+const projectId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
+const projectSecret = process.env.NEXT_PUBLIC_INFURA_PROJECT_SECRET;
+
+const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
+
+const client = create({
+	host: 'ipfs.infura.io',
+	port: 5001,
+	protocol: 'https',
+	headers: {
+		authorization: auth,
+	},
+});
 
 export default function Profile() {
-	const { connected, wallet, publicKey } = useWallet();
+	const wallet = useWallet();
 	const [userName, setUserName] = useState<string>(null);
+	const [profilePic, setProfilePic] = useState<any>(null);
 	const [editingUserName, setEditingUserName] = useState<boolean>(false);
 	const [newUserName, setNewUserName] = useState<string>(null);
+	const [newProfilePic, setNewProfilePic] = useState<any>(null);
+	const [user, setUser] = useState<string>(null);
 	const [_id, set_id] = useState<string>(null);
 
-	const [selectedImage, setSelectedImage] = useState<any>(null);
-
 	useEffect(() => {
-		const fetchUserName = async () => {
+		const fetchUserDetails = async () => {
 			try {
+				let isConnectedtoOrbis = await orbis.isConnected();
+				console.log(isConnectedtoOrbis);
+				if (!isConnectedtoOrbis) {
+					await orbis.connect_v2({
+						provider: window?.phantom?.solana,
+						chain: 'solana',
+					});
+				}
 				const res = await axios.get('https://proto-api.onrender.com/users', {
-					params: { wallet_address: publicKey },
+					params: { wallet_address: wallet.publicKey },
 				});
 				setUserName(res.data[0].name);
+				setProfilePic(res.data[0].profile_picture);
 				set_id(res.data[0]._id);
-				console.log(_id);
 			} catch (e) {
 				console.log(e);
 			}
 		};
-		if (publicKey) fetchUserName();
-	}, [publicKey]);
+		if (wallet.publicKey) fetchUserDetails();
+	}, [wallet.publicKey]);
 
-	function onImageUpload(e) {
-		const file = e.target.files[0];
-		const reader = new FileReader();
-		reader.onloadend = () => setSelectedImage(reader.result);
-		reader.readAsDataURL(file);
-	}
+	// async function connect() {
+	// 	let res = await orbis.connect_v2({
+	// 		provider: window?.phantom?.solana,
+	// 		chain: 'solana',
+	// 	});
+
+	// 	if (res.status == 200) {
+	// 		setUser(res.did);
+	// 		console.log(user);
+	// 		const { data, error } = await orbis.getDids(wallet.publicKey);
+	// 		console.log('connect fn:', data[0]);
+	// 		setUserName(data[0].details.profile.username);
+	// 		setProfilePic(data[0].details.profile.pfp);
+	// 	} else {
+	// 		console.log('Error connecting to Ceramic: ', res);
+	// 		alert('Error connecting to Ceramic.');
+	// 	}
+	// }
+
+	const handleImageUpload = async (e: any) => {
+		try {
+			const file = e.target.files[0];
+			const added = await client.add(file);
+			if (added) {
+				setNewProfilePic({ filename: file.name, hash: added.path });
+
+				console.log(newProfilePic);
+			}
+
+			if (newProfilePic) {
+				const orbisImageUploadResponse = await orbis.updateProfile({
+					username: userName,
+					pfp: `https://ipfs.io/ipfs/${newProfilePic?.hash}`,
+				});
+				console.log(orbisImageUploadResponse);
+				const imageUploadResponse = await axios.patch(
+					`https://proto-api.onrender.com/users/${_id}`,
+					{
+						profile_picture: {
+							hash: newProfilePic.hash,
+							filename: newProfilePic.filename,
+						},
+					}
+				);
+				console.log(imageUploadResponse);
+				if (imageUploadResponse.status === 200) setProfilePic(newProfilePic);
+			}
+		} catch (e) {
+			console.log(e);
+		}
+	};
 
 	const handleChangeUserName = (e) => {
 		setNewUserName(e.target.value);
@@ -54,6 +129,16 @@ export default function Profile() {
 	const handleSaveUserName = () => {
 		setUserName(newUserName);
 		setEditingUserName(false);
+		const updateOrbisUserName = async () => {
+			try {
+				await orbis.updateProfile({
+					username: newUserName,
+					pfp: profilePic,
+				});
+			} catch (e) {
+				console.log(e);
+			}
+		};
 		const updateUserName = async () => {
 			try {
 				const res = await axios.patch(`https://proto-api.onrender.com/users/${_id}`, {
@@ -64,28 +149,33 @@ export default function Profile() {
 			}
 		};
 		updateUserName();
+		updateOrbisUserName();
 	};
 
 	return (
 		<>
 			<div>
-				<div className='flex align-middle flex-col justify-between h-[calc(100vh-200px)] max-w-[600px] mx-auto'>
+				<div className=' align-middle h-[calc(100vh-200px)] max-w-[600px] mx-auto'>
 					<div className='p-6'>
 						<label className='relative'>
-							<Image
-								src={selectedImage ? selectedImage : '/profileplaceholder.svg'}
+							<ChakraImage
+								src={
+									profilePic
+										? `https://ipfs.io/ipfs/${profilePic?.hash}`
+										: '/profileplaceholder.svg'
+								}
 								alt='/'
+								objectFit='cover'
 								className='mx-auto rounded-full object-cover h-32 w-32 cursor-pointer border border-[#b6b8b9]'
-								height={10}
-								width={10}
 							/>
 							<p className='text-[#AEB4B7] text-center mt-1 text-xs font-medium cursor-pointer'>
-								{!selectedImage ? 'Add a pic' : 'Change'}
+								{!profilePic ? 'Add a pic' : 'Change'}
 							</p>
 							<input
 								type='file'
 								className='absolute top-0 left-0 w-32 h-36 m-auto opacity-0 cursor-pointer z-0'
-								onChange={onImageUpload}
+								// onChange={onImageUpload}
+								onChange={(e) => handleImageUpload(e)}
 							/>
 						</label>
 						<div className='flex items-center mt-6'>
@@ -134,30 +224,13 @@ export default function Profile() {
 								</p>
 							)}
 						</div>
-						{connected && (
-							<div className='mt-8'>
-								<p className=' text-gray-500 text-sm'>Wallet Address</p>
-								<p className='text-gray-600 '>{publicKey?.toBase58()}</p>
-								<p>{_id}</p>
-							</div>
-						)}
+						<Options />
 					</div>
-					<div>
-						<div className='flex w-full items-center justify-center'>
-							<DiscordLogo />
-							<TwitterLogo />
-							<InstagramLogo />
-						</div>
-						{connected ? (
-							<>
-								<div className='bg-primary mx-6 p-2 rounded-md mt-4'>
-									<p className='text-center  text-white font-medium cursor-pointer'>
-										Connected
-									</p>
-								</div>
-								{/* <p className='text-center '>You're connected to proto via </p> */}
-							</>
-						) : null}
+
+					<div className='flex w-full items-center justify-center pb-24'>
+						<DiscordLogo />
+						<TwitterLogo />
+						<InstagramLogo />
 					</div>
 				</div>
 			</div>

@@ -1,7 +1,8 @@
 export {};
 
 declare global {
-  interface Window {
-    solana: any;
-  }
+	interface Window {
+		solana: any;
+		phantom: any;
+	}
 }

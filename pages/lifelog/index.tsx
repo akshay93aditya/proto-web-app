@@ -3,10 +3,14 @@ import React, { useState, useEffect } from 'react';
 import Timeline from '../../components/Timeline';
 import axios from 'axios';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { Orbis } from '@orbisclub/orbis-sdk';
+
+let orbis = new Orbis();
 
 export default function Lifelog() {
 	const [timelineData, setTimelineData] = useState([]);
 	const { publicKey } = useWallet();
+
 	useEffect(() => {
 		async function getTimelineData() {
 			try {
@@ -16,7 +20,10 @@ export default function Lifelog() {
 						params: { user_wallet_address: publicKey },
 					}
 				);
-				setTimelineData(timelineResponse.data);
+				const reversedData = timelineResponse.data.sort(
+					(a, b) => b.created_at - a.created_at
+				);
+				setTimelineData(reversedData);
 			} catch (err) {
 				console.log(err);
 			}
