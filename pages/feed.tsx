@@ -1,4 +1,4 @@
-import { Center, Divider, Image } from '@chakra-ui/react';
+import { Center, Circle, Divider, Image } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import Timeline from '../components/Timeline';
 import axios from 'axios';
@@ -34,9 +34,10 @@ export default function Lifelog() {
 	const FeedCard = ({ body, tag, username, lat, long, date, files, pfp }) => {
 		const dateTime = dateFormat(date, 'dd mmmm yyyy, HH:MM:ss');
 		const url = files[0]?.url.replace('ipfs://', 'https://ipfs.io/ipfs/');
+		const tagIcon = tag?.charAt(0);
 		return (
-			<div className='p-2 m-2'>
-				<div className='flex'>
+			<div className='px-2 py-4 m-2 '>
+				<div className='flex items-center justify-between'>
 					<div className='mx-6'>
 						<div className='flex align-middle items-center '>
 							<Image
@@ -44,12 +45,15 @@ export default function Lifelog() {
 								alt='pfp'
 								className=' rounded-full object-cover h-8 w-8 cursor-pointer border border-[#b6b8b9] mr-2'
 							/>
-							<p className='text-black'>{username}</p>
+							<p className='text-black py-2'>{username}</p>
 						</div>
-						<p className=' font-medium text-primary'>{body}</p>
-
-						<p className='text-black'>{tag}</p>
-						<p className='text-black'>
+						<p className=' font-medium text-primary py-1 text-lg'>{body}</p>
+						{tag && (
+							<Circle bg='primary' p={1} size='18px'>
+								<p className='font-bold text-white'>{tagIcon}</p>
+							</Circle>
+						)}
+						<p className='text-gray-700 text-sm py-2'>
 							{lat},{long}
 						</p>
 						{/* <p>{dateTime}</p> */}
@@ -58,7 +62,7 @@ export default function Lifelog() {
 						{files?.length > 0 && <Image src={url} className='h-16 w-16' />}
 					</div>
 				</div>
-				<Divider color='gray.500' />
+				{/* <Divider color='gray.500' /> */}
 			</div>
 		);
 	};
@@ -67,7 +71,7 @@ export default function Lifelog() {
 		<div className='mb-24'>
 			<div>
 				<Center>
-					<div>
+					<div className='divide-y divide-gray-300'>
 						{feedData?.map((data, index) => (
 							<FeedCard
 								key={index}

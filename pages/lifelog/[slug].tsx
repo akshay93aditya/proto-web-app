@@ -1,7 +1,9 @@
 import { Center, Flex, SimpleGrid } from '@chakra-ui/react';
 import Image from 'next/image';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Timeline from '../../components/Timeline';
+import { useRouter } from 'next/router';
+import axios from 'axios';
 
 export default function SingleLifelog() {
 	const NearbyImage = () => {
@@ -16,6 +18,27 @@ export default function SingleLifelog() {
 		);
 	};
 
+	const router = useRouter();
+	const { slug } = router.query;
+	const [checkIn, setCheckin] = useState<any>();
+
+	useEffect(() => {
+		async function getCheckInDetails() {
+			try {
+				const checkInDetails = await axios.get(
+					`https://proto-api.onrender.com/checkins/${slug}`
+				);
+				console.log(checkInDetails);
+				setCheckin(checkInDetails.data);
+			} catch (e) {
+				console.log(e);
+			}
+		}
+		if (slug) {
+			getCheckInDetails();
+		}
+	}, [slug]);
+
 	return (
 		<div>
 			<Flex flexDir='column'>
@@ -28,27 +51,31 @@ export default function SingleLifelog() {
 					<NearbyImage />
 				</Flex>
 			</Flex>
-			{/* <Center>
+			<Center>
 				<div className=' z-0 block mt-4'>
 					<ol className='relative border-l border-primary'>
-						<Timeline
-							message='Attending Solana Hackerhouse!'
-							createdAt='19 November 2022, 18:21:34'
-							numimages={2}
-							latitude={40.709139}
-							longitude={74.000905}
-							index={1}
-							arrLength={0}
-						/>
+						{checkIn && (
+							<Timeline
+								message={checkIn.message}
+								createdAt={checkIn.createdAt}
+								latitude={checkIn.latitude}
+								longitude={checkIn.longitude}
+								index={1}
+								arrLength={0}
+								files={checkIn.files}
+							/>
+						)}
 					</ol>
 				</div>
 			</Center>
 			<div className='bg-primary'>
-				<p className='text-center text-white font-semibold text-lg p-2'>
-					40.709139, 74.000905
-				</p>
+				{checkIn && (
+					<p className='text-center text-white font-semibold text-lg p-2'>
+						{checkIn.latitude}, {checkIn.longitude}
+					</p>
+				)}
 			</div>
-			<div className='w-auto md:w-[500px] mx-auto p-4'>
+			{/* <div className='w-auto md:w-[500px] mx-auto p-4'>
 				<p className='text-xs mt-6 opacity-70'>
 					Signature:
 					4tWNvnVxdeC4Kgb98o8pcu3jKZ4GcwSRotURB4BmaL5krVapfNJuYEZ8zZ3k3BECZthW9XnhxDHHSkfJFHJPpEgA
