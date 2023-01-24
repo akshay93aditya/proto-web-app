@@ -98,6 +98,22 @@ const CheckIn = () => {
 			isClosable: true,
 		});
 
+	const errorToast = () =>
+		toast({
+			title: `Check-In failed`,
+			description: (
+				<a
+					href={`https://explorer.solana.com/tx/${checkInSignature}?cluster=devnet`}
+					rel='noreferrer'
+					target='_blank'>
+					View in Explorer
+				</a>
+			),
+			status: 'error',
+			duration: 5000,
+			isClosable: true,
+		});
+
 	useEffect(() => {
 		const options = {
 			enableHighAccuracy: false,
@@ -141,41 +157,56 @@ const CheckIn = () => {
 		const hindex = latLngToCell(lat, lng, 7);
 
 		const program = await getProgram();
+		const mongo1 = mongoId.slice(0, mongoId.length / 2);
+		const mongo2 = mongoId.slice(mongoId.length / 2, mongoId.length);
 
 		const [checkInPDA] = PublicKey.findProgramAddressSync(
 			[
 				utils.bytes.utf8.encode('check-in-data'),
 				provider.wallet.publicKey.toBuffer(),
-				Buffer.from(mongoId),
+				Buffer.from(mongo1),
 				Buffer.from(hindex),
 			],
 			program.programId
 		);
+		console.log('checkInPDA', checkInPDA);
 
-		try {
-			const sig = await program.methods
-				.checkIn(hindex, mongoId, checkInMessage)
-				.accounts({
-					user: provider.wallet.publicKey,
-					checkIn: checkInPDA,
-					systemProgram: SystemProgram.programId,
-				})
-				.rpc();
-			// save generated pdl for this checkin
-			const checkinPdlResponse = await axios({
-				method: 'post',
-				url: `${baseUrl}/checkins/ ${mongoId}/pdls`,
-				data: {
-					pdl: checkInPDA,
-				},
-			});
-			setPdl(checkInPDA.toString());
-			setcheckIn(checkinPdlResponse.data);
-			setCheckInSignature(sig);
-		} catch (error) {
-			console.error(error);
-			throw new Error(error);
-		}
+		const [checkInPDA2] = PublicKey.findProgramAddressSync(
+			[
+				utils.bytes.utf8.encode('check-in-data'),
+				provider.wallet.publicKey.toBuffer(),
+				Buffer.from(mongo2),
+				Buffer.from(hindex),
+			],
+			program.programId
+		);
+		console.log('checkInPDA', checkInPDA);
+		console.log('checkInPDA2', checkInPDA2);
+
+		// try {
+		// 	const sig = await program.methods
+		// 		.checkIn(hindex, mongoId, checkInMessage)
+		// 		.accounts({
+		// 			user: provider.wallet.publicKey,
+		// 			checkIn: checkInPDA,
+		// 			systemProgram: SystemProgram.programId,
+		// 		})
+		// 		.rpc();
+		// 	// save generated pdl for this checkin
+		// 	const checkinPdlResponse = await axios({
+		// 		method: 'post',
+		// 		url: `${baseUrl}/checkins/ ${mongoId}/pdls`,
+		// 		data: {
+		// 			pdl: checkInPDA,
+		// 		},
+		// 	});
+		// 	setPdl(checkInPDA.toString());
+		// 	setcheckIn(checkinPdlResponse.data);
+		// 	setCheckInSignature(sig);
+		// } catch (error) {
+		// 	console.error(error);
+		// 	throw new Error(error);
+		// }
 	}
 
 	async function handleSubmit(e: any) {
@@ -216,7 +247,7 @@ const CheckIn = () => {
 				if (checkinResponse.status === 200) {
 					console.log(checkinResponse);
 					await CheckInTransaction(checkinResponse.doc);
-					setcheckIn(checkinResponse.data);
+					setcheckIn(checkinResponse);
 					setLoading(false);
 					setSuccess(true);
 				}
@@ -256,6 +287,7 @@ const CheckIn = () => {
 			console.log(error);
 			setLoading(false);
 			setSuccess(false);
+			errorToast();
 		}
 	}
 
