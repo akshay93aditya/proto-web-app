@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Orbis } from '@orbisclub/orbis-sdk';
 
-let orbis = new Orbis();
+// let orbis = new Orbis();
 
 export default function Lifelog() {
 	const [timelineData, setTimelineData] = useState([]);
@@ -48,6 +48,7 @@ export default function Lifelog() {
 								longitude={data.longitude}
 								tag={data?.tag}
 								index={index}
+								id={data._id}
 								arrLength={timelineData.length}
 							/>
 						))}
