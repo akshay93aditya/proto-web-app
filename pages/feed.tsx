@@ -32,7 +32,7 @@ export default function Lifelog() {
 	}, [publicKey]);
 
 	const FeedCard = ({ body, tag, username, lat, long, date, files, pfp }) => {
-		const dateTime = dateFormat(date, 'dd mmmm yyyy, HH:MM:ss');
+		const dateTime = dateFormat(date * 1000, 'dd mmmm yyyy, HH:MM:ss');
 		const url = files[0]?.url.replace('ipfs://', 'https://ipfs.io/ipfs/');
 		const tagIcon = tag?.charAt(0);
 		return (
@@ -45,18 +45,19 @@ export default function Lifelog() {
 								alt='pfp'
 								className=' rounded-full object-cover h-8 w-8 cursor-pointer border border-[#b6b8b9] mr-2'
 							/>
-							<p className='text-black py-2'>{username}</p>
+							<p className='text-gray-700 py-2 text-sm font-semibold'>{username}</p>
 						</div>
 						<p className=' font-medium text-primary py-1 text-lg'>{body}</p>
+
+						<p className='text-gray-600 text-xs py-2'>{dateTime}</p>
 						{tag && (
 							<Circle bg='primary' p={1} size='18px'>
-								<p className='font-bold text-white'>{tagIcon}</p>
+								<p className='font-bold text-xs text-white'>{tagIcon}</p>
 							</Circle>
 						)}
-						<p className='text-gray-700 text-sm py-2'>
-							{lat},{long}
+						<p className='text-gray-600 text-xs py-2'>
+							{lat}, {long}
 						</p>
-						{/* <p>{dateTime}</p> */}
 					</div>
 					<div className='mx-6'>
 						{files?.length > 0 && <Image src={url} className='h-16 w-16' />}
