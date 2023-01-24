@@ -6,32 +6,31 @@ import { useRouter } from 'next/router';
 import { LogoSmall } from '../dynamic/Logo';
 
 export default function Header() {
-	const router = useRouter();
+  const router = useRouter();
 
-	return (
-		<div className='flex py-2 px-2 md:px-8 justify-between items-center shadow sticky top-0 w-full z-20 bg-white'>
-			{/* <ProfileIcon onClick={() => router.push('/profile')} /> */}
-			<LogoSmall onClick={() => router.push('/')} />
-			{router.pathname === '/' && (
-				<InputGroup ml='4'>
-					<Input
-						placeholder='Search'
-						variant='filled'
-						type='text'
-						border='1px'
-						borderColor='gray.300'
-						color='gray.800'
-						fontFamily='Montserrat'
-					/>
-					<InputLeftElement
-						pointerEvents='none'
-						children={<SearchIcon color='gray.300' />}
-					/>
-				</InputGroup>
-			)}
-			<div className='ml-4'>
-				<Button />
-			</div>
-		</div>
-	);
+  return (
+    <div className="sticky top-0 z-20 flex w-full items-center justify-between bg-white py-2 px-2 shadow md:px-8">
+      {/* <ProfileIcon onClick={() => router.push('/profile')} /> */}
+      <LogoSmall onClick={() => router.push('/')} />
+      {router.pathname === '/' && (
+        <InputGroup ml="4">
+          <Input
+            placeholder="Search"
+            variant="filled"
+            type="text"
+            border="1px"
+            borderColor="gray.300"
+            color="gray.800"
+            fontFamily="Montserrat"
+          />
+          <InputLeftElement pointerEvents="none">
+            <SearchIcon color="gray.300" />
+          </InputLeftElement>
+        </InputGroup>
+      )}
+      <div className="ml-4">
+        <Button />
+      </div>
+    </div>
+  );
 }

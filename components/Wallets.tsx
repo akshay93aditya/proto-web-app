@@ -1,19 +1,19 @@
-import { useMemo } from "react";
-import { PublicKey, clusterApiUrl } from "@solana/web3.js";
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import { useMemo } from 'react';
+import { PublicKey, clusterApiUrl } from '@solana/web3.js';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 
 import {
   ConnectionProvider,
   WalletProvider,
-} from "@solana/wallet-adapter-react";
+} from '@solana/wallet-adapter-react';
 import {
   PhantomWalletAdapter,
   GlowWalletAdapter,
   MathWalletAdapter,
   SolflareWalletAdapter,
   TorusWalletAdapter,
-} from "@solana/wallet-adapter-wallets";
+} from '@solana/wallet-adapter-wallets';
 
 const Wallets = ({ children }) => {
   const endpoint = useMemo(
