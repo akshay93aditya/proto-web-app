@@ -58,41 +58,26 @@ const CheckIn = () => {
 	const [checkin, setcheckIn] = useState<object>();
 	const [imageCount, setImageCount] = useState<number>(0);
 	const [files, setFiles] = useState([]);
-	const [selectedTag, setSelectedTag] = useState<any>([{ title: 'proto', slug: 'proto' }]);
+	const [selectedTag, setSelectedTag] = useState<any>();
+	const [orbisTag, setOrbisTag] = useState<any>([{ title: 'proto', slug: 'proto' }]);
+	const [orbisFiles, setOrbisFiles] = useState<any>([]);
 
 	const [user, setUser] = useState<string>('');
 
 	const wallet = useWallet();
 
-	async function connect() {
-		let res = await orbis.connect_v2({
-			provider: window?.phantom?.solana,
-			chain: 'solana',
-		});
-
-		if (res.status == 200) {
-			setUser(res.did);
-			console.log(user);
-			const { data, error } = await orbis.getDids(wallet.publicKey);
-			console.log('connect fn:', data[0]);
-		} else {
-			console.log('Error connecting to Ceramic: ', res);
-			alert('Error connecting to Ceramic.');
-		}
-	}
-
 	const toast = useToast();
 	const successToast = () =>
 		toast({
-			title: `Check-In Complete: ${pdl}`,
-			description: (
-				<a
-					href={`https://explorer.solana.com/tx/${checkInSignature}?cluster=devnet`}
-					rel='noreferrer'
-					target='_blank'>
-					View in Explorer
-				</a>
-			),
+			title: `Check-In Complete`,
+			// description: (
+			// 	<a
+			// 		href={`https://explorer.solana.com/tx/${checkInSignature}?cluster=devnet`}
+			// 		rel='noreferrer'
+			// 		target='_blank'>
+			// 		View in Explorer
+			// 	</a>
+			// ),
 			status: 'success',
 			duration: 5000,
 			isClosable: true,
@@ -157,56 +142,41 @@ const CheckIn = () => {
 		const hindex = latLngToCell(lat, lng, 7);
 
 		const program = await getProgram();
-		const mongo1 = mongoId.slice(0, mongoId.length / 2);
-		const mongo2 = mongoId.slice(mongoId.length / 2, mongoId.length);
 
 		const [checkInPDA] = PublicKey.findProgramAddressSync(
 			[
 				utils.bytes.utf8.encode('check-in-data'),
 				provider.wallet.publicKey.toBuffer(),
-				Buffer.from(mongo1),
+				Buffer.from(mongoId),
 				Buffer.from(hindex),
 			],
 			program.programId
 		);
-		console.log('checkInPDA', checkInPDA);
 
-		const [checkInPDA2] = PublicKey.findProgramAddressSync(
-			[
-				utils.bytes.utf8.encode('check-in-data'),
-				provider.wallet.publicKey.toBuffer(),
-				Buffer.from(mongo2),
-				Buffer.from(hindex),
-			],
-			program.programId
-		);
-		console.log('checkInPDA', checkInPDA);
-		console.log('checkInPDA2', checkInPDA2);
-
-		// try {
-		// 	const sig = await program.methods
-		// 		.checkIn(hindex, mongoId, checkInMessage)
-		// 		.accounts({
-		// 			user: provider.wallet.publicKey,
-		// 			checkIn: checkInPDA,
-		// 			systemProgram: SystemProgram.programId,
-		// 		})
-		// 		.rpc();
-		// 	// save generated pdl for this checkin
-		// 	const checkinPdlResponse = await axios({
-		// 		method: 'post',
-		// 		url: `${baseUrl}/checkins/ ${mongoId}/pdls`,
-		// 		data: {
-		// 			pdl: checkInPDA,
-		// 		},
-		// 	});
-		// 	setPdl(checkInPDA.toString());
-		// 	setcheckIn(checkinPdlResponse.data);
-		// 	setCheckInSignature(sig);
-		// } catch (error) {
-		// 	console.error(error);
-		// 	throw new Error(error);
-		// }
+		try {
+			const sig = await program.methods
+				.checkIn(hindex, mongoId, checkInMessage)
+				.accounts({
+					user: provider.wallet.publicKey,
+					checkIn: checkInPDA,
+					systemProgram: SystemProgram.programId,
+				})
+				.rpc();
+			// save generated pdl for this checkin
+			const checkinPdlResponse = await axios({
+				method: 'post',
+				url: `${baseUrl}/checkins/${mongoId}/pdls`,
+				data: {
+					pdl: checkInPDA,
+				},
+			});
+			setPdl(checkInPDA.toString());
+			setcheckIn(checkinPdlResponse.data);
+			setCheckInSignature(sig);
+		} catch (error) {
+			console.error(error);
+			throw new Error(error);
+		}
 	}
 
 	async function handleSubmit(e: any) {
@@ -220,69 +190,92 @@ const CheckIn = () => {
 				return;
 			}
 
-			const usersResponse = await orbis.isConnected();
-			if (usersResponse.status == 200) {
-				// const checkinResponse = await axios({
-				// 	method: 'post',
-				// 	url: `${baseUrl}/checkins`,
-				// 	data: {
-				// 		user_wallet_address: wallet.publicKey.toString(),
-				// 		message: checkInMessage,
-				// 		latitude: lat,
-				// 		longitude: lng,
-				// 		...(files && { files }),
-				// 		tag: selectedTag,
-				// 	},
-				// });
+			let isConnectedtoOrbis = await orbis.isConnected();
+			console.log(isConnectedtoOrbis);
+			if (!isConnectedtoOrbis) {
+				await orbis.connect_v2({
+					provider: window?.phantom?.solana,
+					chain: 'solana',
+				});
+			}
+
+			const usersResponse = await axios({
+				method: 'get',
+				url: `${baseUrl}/users`,
+				params: { wallet_address: wallet.publicKey.toString() },
+			});
+
+			if (usersResponse.data.length) {
 				console.log(usersResponse);
-				const checkinResponse = await orbis.createPost({
+				const orbisCheckinResponse = await orbis.createPost({
 					body: checkInMessage,
 					data: {
 						latitude: lat,
 						longitude: lng,
 					},
-					tags: selectedTag,
-					files: files,
+					tags: orbisTag,
+					files: orbisFiles,
 				});
-				if (checkinResponse.status === 200) {
-					console.log(checkinResponse);
-					await CheckInTransaction(checkinResponse.doc);
+				console.log(orbisCheckinResponse);
+
+				const checkinResponse = await axios({
+					method: 'post',
+					url: `${baseUrl}/checkins`,
+					data: {
+						user_wallet_address: wallet.publicKey.toString(),
+						message: checkInMessage,
+						latitude: lat,
+						longitude: lng,
+						...(files && { files }),
+						tag: selectedTag,
+					},
+				});
+				console.log(checkinResponse);
+				if (checkinResponse.data) {
+					await CheckInTransaction(checkinResponse.data._id);
 					setcheckIn(checkinResponse);
 					setLoading(false);
 					setSuccess(true);
+					successToast();
 				}
-				// await CheckInTransaction(checkinResponse.data.doc);
-				// setcheckIn(checkinResponse.data);
-				// setLoading(false);
-				// setSuccess(true);
+				// successToast();
+			} else {
+				await axios({
+					method: 'post',
+					url: `${baseUrl}/users`,
+					data: {
+						wallet_address: wallet.publicKey.toString(),
+					},
+				});
+				const orbisCheckinResponse = await orbis.createPost({
+					body: checkInMessage,
+					data: {
+						latitude: lat,
+						longitude: lng,
+					},
+					tags: orbisTag,
+					files: orbisFiles,
+				});
+				console.log(orbisCheckinResponse);
+
+				const checkinResponse = await axios({
+					method: 'post',
+					url: `${baseUrl}/checkins`,
+					data: {
+						user_wallet_address: wallet.publicKey.toString(),
+						message: checkInMessage,
+						latitude: lat,
+						longitude: lng,
+						...(files && { files }),
+						tag: selectedTag,
+					},
+				});
+				await CheckInTransaction(checkinResponse.data._id);
+				setcheckIn(checkinResponse.data);
+				setLoading(false);
+				setSuccess(true);
 				// successToast();
 			}
-			// else {
-			// 	await axios({
-			// 		method: 'post',
-			// 		url: `${baseUrl}/users`,
-			// 		data: {
-			// 			wallet_address: wallet.publicKey.toString(),
-			// 		},
-			// 	});
-
-			// 	const checkinResponse = await axios({
-			// 		method: 'post',
-			// 		url: `${baseUrl}/checkins`,
-			// 		data: {
-			// 			user_wallet_address: wallet.publicKey.toString(),
-			// 			message: checkInMessage,
-			// 			latitude: lat,
-			// 			longitude: lng,
-			// 			...(files && { files }),
-			// 		},
-			// 	});
-			// 	await CheckInTransaction(checkinResponse.data._id);
-			// 	setcheckIn(checkinResponse.data);
-			// 	setLoading(false);
-			// 	setSuccess(true);
-			// 	// successToast();
-			// }
 		} catch (error) {
 			console.log(error);
 			setLoading(false);
@@ -301,16 +294,19 @@ const CheckIn = () => {
 		} else {
 			try {
 				let uploadedFiles = [];
+				let orbisUploadedFiles = [];
 				await Promise.all(
 					Array.from(e.target.files).map(async (file: File) => {
 						const added = await client.add(file);
-						uploadedFiles.push({
+						uploadedFiles.push({ filename: file.name, hash: added.path });
+						orbisUploadedFiles.push({
 							url: `ipfs://${added.path}`,
 							gateway: 'https://proto.infura-ipfs.io',
 						});
 					})
 				);
 				setFiles(uploadedFiles);
+				setOrbisFiles(orbisUploadedFiles);
 				setImageCount(Array.from(e.target.files).length);
 			} catch (e) {
 				console.log('Error uploading file: ', e);
@@ -330,13 +326,14 @@ const CheckIn = () => {
 		const handleClick = () => {
 			let newTag = [{ title: 'proto', slug: 'proto' }];
 			newTag.push({ title: title, slug: slug });
-			setSelectedTag(newTag);
+			setOrbisTag(newTag);
+			setSelectedTag(title);
 		};
 
 		return (
 			<div
 				className={`mx-1 flex flex-col items-center justify-center cursor-pointer p-2 box-border transition-all ease-in-out duration-200 h-[60px] ${
-					title === selectedTag[1]?.title && 'border-[1.5px] border-primary rounded-md'
+					title === selectedTag && 'border-[1.5px] border-primary rounded-md'
 				}`}
 				onClick={handleClick}>
 				<Circle bg={color} p={1} size='24px'>
@@ -492,7 +489,7 @@ const CheckIn = () => {
 					/>
 				)}
 			</form>
-			{success && successToast()}
+			{/* {success && successToast()} */}
 		</div>
 	);
 };
