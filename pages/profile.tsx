@@ -70,25 +70,6 @@ export default function Profile() {
     if (wallet.publicKey) fetchUserDetails();
   }, [wallet.publicKey]);
 
-  // async function connect() {
-  // 	let res = await orbis.connect_v2({
-  // 		provider: window?.phantom?.solana,
-  // 		chain: 'solana',
-  // 	});
-
-  // 	if (res.status == 200) {
-  // 		setUser(res.did);
-  // 		console.log(user);
-  // 		const { data, error } = await orbis.getDids(wallet.publicKey);
-  // 		console.log('connect fn:', data[0]);
-  // 		setUserName(data[0].details.profile.username);
-  // 		setProfilePic(data[0].details.profile.pfp);
-  // 	} else {
-  // 		console.log('Error connecting to Ceramic: ', res);
-  // 		alert('Error connecting to Ceramic.');
-  // 	}
-  // }
-
   const handleImageUpload = async (e: any) => {
     try {
       const file = e.target.files[0];
@@ -233,7 +214,7 @@ export default function Profile() {
             <Options />
           </div>
 
-          <div className="flex w-full items-center justify-center pb-24">
+          <div className="mx-auto flex w-1/3 items-center justify-around pb-24">
             <DiscordLogo />
             <TwitterLogo />
             <InstagramLogo />

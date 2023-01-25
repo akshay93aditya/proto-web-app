@@ -48,7 +48,7 @@ const client = create({
 
 let orbis = new Orbis();
 
-const CheckIn = () => {
+const CheckInForm = () => {
   const [lat, setlat] = useState<number>(0);
   const [lng, setlng] = useState<number>(0);
   const [checkInMessage, setcheckInMessage] = useState<string>('');
@@ -508,4 +508,4 @@ const CheckIn = () => {
   );
 };
 
-export default CheckIn;
+export default CheckInForm;
