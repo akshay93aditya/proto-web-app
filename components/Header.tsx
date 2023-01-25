@@ -21,7 +21,7 @@ export default function Header() {
             border="1px"
             borderColor="gray.300"
             color="gray.800"
-            fontFamily="Montserrat"
+            fontFamily="Inter"
           />
           <InputLeftElement pointerEvents="none">
             <SearchIcon color="gray.300" />

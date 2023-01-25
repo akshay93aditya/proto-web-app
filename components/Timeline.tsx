@@ -2,6 +2,8 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import { TimeLineDot } from '../dynamic/CheckInIcons';
 import dateFormat from 'dateformat';
+import { Circle } from '@chakra-ui/react';
+import { TagList } from './Taglist';
 
 export default function Timeline(props) {
   const router = useRouter();
@@ -18,6 +20,7 @@ export default function Timeline(props) {
   } = props;
   const dateTime = dateFormat(createdAt, 'dd mmmm yyyy, HH:MM:ss');
   const numImages = files.length;
+  const tagIcon = TagList.find((item) => item.title === tag)?.icon;
   return (
     <>
       <li
@@ -30,6 +33,11 @@ export default function Timeline(props) {
         <h3 className="mb-1 flex items-center text-lg font-medium text-[#14AEDE]">
           {message}
         </h3>
+        {tag && (
+          <Circle bg="primary" p={1} my={2} size="18px">
+            <p className="text-xs font-bold text-white">{tagIcon}</p>
+          </Circle>
+        )}
         {/* <p className='flex items-center mb-1 text-sm text-gray-900'>@{location}</p> */}
         <time className="mb-2 block text-sm font-normal leading-none text-gray-600 ">
           {dateTime}

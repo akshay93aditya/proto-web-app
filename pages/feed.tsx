@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Orbis } from '@orbisclub/orbis-sdk';
 import FeedCard from '../components/FeedCard';
+import SEOtag from '../components/SEOtag';
 
 let orbis = new Orbis();
 
@@ -31,6 +32,7 @@ export default function Feed() {
 
   return (
     <div className="mb-24">
+      <SEOtag title="Feed | Proto" />
       <div>
         <Center>
           <div className="divide-y divide-gray-300">

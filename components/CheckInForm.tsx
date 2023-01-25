@@ -16,6 +16,7 @@ import {
 import { latLngToCell } from 'h3-js';
 import { FailedCheckInIcon } from '../dynamic/CheckInIcons';
 import { Orbis } from '@orbisclub/orbis-sdk';
+import { TagList } from './Taglist';
 
 export type CheckIN = {
   lat: number;
@@ -328,9 +329,7 @@ const CheckInForm = () => {
     fileInput.current.click();
   };
 
-  const Tag = ({ title, slug, color }) => {
-    const icon = title.charAt(0);
-
+  const Tag = ({ title, slug, icon }) => {
     const handleClick = () => {
       let newTag = [{ title: 'proto', slug: 'proto' }];
       newTag.push({ title: title, slug: slug });
@@ -340,53 +339,18 @@ const CheckInForm = () => {
 
     return (
       <div
-        className={`mx-1 box-border flex h-[60px] cursor-pointer flex-col items-center justify-center p-2 transition-all duration-200 ease-in-out ${
+        className={`mx-1 box-border flex h-[60px] w-[100px] cursor-pointer flex-col items-center justify-center p-2 transition-all duration-200 ease-in-out ${
           title === selectedTag && 'rounded-md border-[1.5px] border-primary'
         }`}
         onClick={handleClick}
       >
-        <Circle bg={color} p={1} size="24px">
-          <p className="font-black text-white">{icon}</p>
-        </Circle>
+        {icon}
         <p className="text-center text-[8px] font-medium text-gray-400">
           {title}
         </p>
       </div>
     );
   };
-
-  const tags = [
-    {
-      title: 'Event',
-      slug: 'Event',
-      color: '#85b9bc',
-    },
-    {
-      title: 'Landmark',
-      slug: 'Landmark',
-      color: '#efbc89',
-    },
-    {
-      title: 'Food',
-      slug: 'Food',
-      color: '#dead2a',
-    },
-    {
-      title: 'Market',
-      slug: 'Market',
-      color: '#83b8c8',
-    },
-    {
-      title: 'Tourism',
-      slug: 'Tourism',
-      color: '#ccfe55',
-    },
-    {
-      title: 'Pt of Interest',
-      slug: 'PtOfInterest',
-      color: '#89d7ef',
-    },
-  ];
 
   return (
     <div className="visible absolute bottom-0 z-10 flex h-max w-full flex-col items-center justify-center bg-white pb-4 transition-height duration-500 ease-in-out">
@@ -433,11 +397,11 @@ const CheckInForm = () => {
           />
         )} */}
         <div className="mb-4 box-border flex w-full justify-between">
-          {tags.map((tag) => {
+          {TagList.map((tag) => {
             return (
               <Tag
                 title={tag.title}
-                color={tag.color}
+                icon={tag.icon}
                 key={tag.title}
                 slug={tag.slug}
               />

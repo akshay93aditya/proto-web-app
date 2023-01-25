@@ -18,6 +18,7 @@ import Options from '../components/Options';
 import { create } from 'ipfs-http-client';
 
 import { Orbis } from '@orbisclub/orbis-sdk';
+import SEOtag from '../components/SEOtag';
 
 let orbis = new Orbis();
 
@@ -139,6 +140,7 @@ export default function Profile() {
 
   return (
     <>
+      <SEOtag title="Profile | Proto" />
       <div>
         <div className=" mx-auto h-[calc(100vh-200px)] max-w-[600px] align-middle">
           <div className="p-6">

@@ -12,7 +12,7 @@ module.exports = {
         primary: '#14aede',
       },
       fontFamily: {
-        sans: ['var(--font-montserrat)'],
+        sans: ['var(--font-inter)'],
       },
       transitionProperty: {
         height: 'height',

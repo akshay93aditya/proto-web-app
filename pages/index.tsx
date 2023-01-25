@@ -3,6 +3,7 @@ import React, { Suspense, useEffect, useState, useRef } from 'react';
 import CheckIn from '../components/CheckInForm';
 import Loading from '../components/Loading';
 import Map from '../components/Map';
+import SEOtag from '../components/SEOtag';
 
 export default function Checkin() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -25,6 +26,7 @@ export default function Checkin() {
 
   return (
     <Suspense fallback={<Loading />}>
+      <SEOtag title="Home | Proto" />
       <Center>
         <Button
           transition="all ease-in-out duration-500"

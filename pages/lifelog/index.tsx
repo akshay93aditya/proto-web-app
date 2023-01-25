@@ -4,6 +4,7 @@ import Timeline from '../../components/Timeline';
 import axios from 'axios';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Orbis } from '@orbisclub/orbis-sdk';
+import SEOtag from '../../components/SEOtag';
 
 // let orbis = new Orbis();
 
@@ -34,6 +35,7 @@ export default function Lifelog() {
 
   return (
     <div>
+      <SEOtag title="Lifelog | Proto" />
       <Center>
         <div className=" z-0 my-10 block">
           <ol className="relative border-l border-primary">

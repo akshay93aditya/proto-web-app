@@ -1,5 +1,6 @@
 import dateFormat from 'dateformat';
 import { Center, Circle, Divider, Image } from '@chakra-ui/react';
+import { TagList } from './Taglist';
 
 export default function FeedCard({
   body,
@@ -14,7 +15,7 @@ export default function FeedCard({
 }) {
   const dateTime = dateFormat(date * 1000, 'dd mmmm yyyy, HH:MM:ss');
   const url = files[0]?.url.replace('ipfs://', 'https://ipfs.io/ipfs/');
-  const tagIcon = tag?.charAt(0);
+  const tagIcon = TagList.find((t) => t.title === tag)?.icon;
   const truncatedAddress =
     address.substring(0, 4) + '...' + address.substring(address.length - 4);
   return (
@@ -34,11 +35,7 @@ export default function FeedCard({
           <p className=" py-1 text-lg font-medium text-primary">{body}</p>
 
           <p className="py-2 text-xs text-gray-600">{dateTime}</p>
-          {tag && (
-            <Circle bg="primary" p={1} size="18px">
-              <p className="text-xs font-bold text-white">{tagIcon}</p>
-            </Circle>
-          )}
+          {tag && tagIcon}
           <p className="py-2 text-xs text-gray-600">
             {lat}, {long}
           </p>
