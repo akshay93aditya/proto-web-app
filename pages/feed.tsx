@@ -14,18 +14,9 @@ export default function Feed() {
 
   useEffect(() => {
     async function getPosts() {
-      let isConnectedtoOrbis = await orbis.isConnected();
-      console.log(isConnectedtoOrbis);
-      if (!isConnectedtoOrbis) {
-        await orbis.connect_v2({
-          provider: window?.phantom?.solana,
-          chain: 'solana',
-        });
-      } else {
-        const { data, error } = await orbis.getPosts({ tag: 'proto' });
-        console.log(data);
-        setFeedData(data);
-      }
+      const { data, error } = await orbis.getPosts({ tag: 'proto' });
+      console.log(data);
+      setFeedData(data);
     }
 
     if (publicKey) getPosts();

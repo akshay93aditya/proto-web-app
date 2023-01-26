@@ -1,4 +1,4 @@
-import { Center } from '@chakra-ui/react';
+import { Center, Skeleton, SkeletonText } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import Timeline from '../../components/Timeline';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -24,25 +24,38 @@ export default function Lifelog() {
     <div>
       <SEOtag title="Lifelog | Proto" />
       <Center>
-        <div className=" z-0 my-10 block">
-          <ol className="relative border-l border-primary">
-            {timelineData?.map((data, index) => (
-              <Timeline
-                key={index}
-                message={data.message}
-                location={data.location}
-                createdAt={data.createdAt}
-                files={data.files}
-                latitude={data.latitude}
-                longitude={data.longitude}
-                tag={data?.tag}
-                index={index}
-                id={data._id}
-                arrLength={timelineData.length}
-              />
-            ))}
-          </ol>
-        </div>
+        {status == 'loading' ? (
+          <SkeletonText
+            noOfLines={30}
+            width="40%"
+            maxW="800px"
+            mx="auto"
+            my={20}
+            spacing="4"
+            startColor="gray.100"
+            endColor="gray.300"
+          />
+        ) : (
+          <div className=" z-0 my-10 block">
+            <ol className="relative border-l border-primary">
+              {timelineData?.map((data, index) => (
+                <Timeline
+                  key={index}
+                  message={data.message}
+                  location={data.location}
+                  createdAt={data.createdAt}
+                  files={data.files}
+                  latitude={data.latitude}
+                  longitude={data.longitude}
+                  tag={data?.tag}
+                  index={index}
+                  id={data._id}
+                  arrLength={timelineData.length}
+                />
+              ))}
+            </ol>
+          </div>
+        )}
       </Center>
     </div>
   );

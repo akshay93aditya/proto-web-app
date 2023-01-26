@@ -10,6 +10,10 @@ import {
   InputGroup,
   InputRightElement,
   Image as ChakraImage,
+  Spinner,
+  SkeletonCircle,
+  SkeletonText,
+  Skeleton,
 } from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { DiscordLogo, InstagramLogo, TwitterLogo } from '../dynamic/Profile';
@@ -131,75 +135,99 @@ export default function Profile() {
       <div>
         <div className=" mx-auto h-[calc(100vh-200px)] max-w-[600px] align-middle">
           <div className="p-6">
-            <label className="relative">
-              <ChakraImage
-                src={
-                  profilePic
-                    ? `https://ipfs.io/ipfs/${profilePic?.hash}`
-                    : '/profileplaceholder.svg'
-                }
-                alt="/"
-                objectFit="cover"
-                className="mx-auto h-32 w-32 cursor-pointer rounded-full border border-[#b6b8b9] object-cover"
-              />
-              <p className="mt-1 cursor-pointer text-center text-xs font-medium text-[#AEB4B7]">
-                {!profilePic ? 'Add a pic' : 'Change'}
-              </p>
-              <input
-                type="file"
-                className="absolute top-0 left-0 z-0 m-auto h-36 w-32 cursor-pointer opacity-0"
-                // onChange={onImageUpload}
-                onChange={(e) => handleImageUpload(e)}
-              />
-            </label>
-            <div className="mt-6 flex items-center">
-              {/* <p className='font-medium'>Username</p> */}
-              {!userName ? (
-                <FormControl>
-                  <FormLabel
-                    fontSize="sm"
-                    mb="-0.5px"
-                    color="gray.500"
-                    fontWeight={400}
-                  >
-                    Username
-                  </FormLabel>
-                  <InputGroup>
-                    <Input
-                      placeholder="Set a username..."
-                      borderColor="#E2E8F0"
-                      type="text"
-                      onChange={handleChangeUserName}
-                    />
-                    <InputRightElement w="4.5rem">
-                      {editingUserName &&
-                      newUserName.length !== 0 &&
-                      userName !== newUserName ? (
-                        <Center>
-                          <Button
-                            h="32px"
-                            mr="4px"
-                            colorScheme="telegram"
-                            bg="primary"
-                            color="#fff"
-                            onClick={handleSaveUserName}
-                          >
-                            Save
-                          </Button>
-                        </Center>
-                      ) : null}
-                    </InputRightElement>
-                  </InputGroup>
-                  <FormHelperText color="gray.400">
-                    *You can only set your username once
-                  </FormHelperText>
-                </FormControl>
-              ) : (
-                <p className="mx-auto text-center text-2xl font-medium text-gray-700">
-                  {userName}
-                </p>
-              )}
-            </div>
+            {status == 'loading' ? (
+              <>
+                <SkeletonCircle
+                  size="8rem"
+                  startColor="gray.100"
+                  endColor="gray.300"
+                  mx="auto"
+                />
+                <Skeleton
+                  width="40%"
+                  h="24px"
+                  maxW="800px"
+                  mx="auto"
+                  mt={14}
+                  // spacing="4"
+                  startColor="gray.100"
+                  endColor="gray.300"
+                />
+              </>
+            ) : (
+              <>
+                <label className="relative">
+                  <ChakraImage
+                    src={
+                      profilePic
+                        ? `https://ipfs.io/ipfs/${profilePic?.hash}`
+                        : '/profileplaceholder.svg'
+                    }
+                    alt="/"
+                    objectFit="cover"
+                    className="mx-auto h-32 w-32 cursor-pointer rounded-full border border-[#b6b8b9] object-cover"
+                  />
+                  <p className="mt-1 cursor-pointer text-center text-xs font-medium text-[#AEB4B7]">
+                    {!profilePic ? 'Add a pic' : 'Change'}
+                  </p>
+                  <input
+                    type="file"
+                    className="absolute top-0 left-0 z-0 m-auto h-36 w-32 cursor-pointer opacity-0"
+                    // onChange={onImageUpload}
+                    onChange={(e) => handleImageUpload(e)}
+                  />
+                </label>
+                <div className="mt-6 flex items-center">
+                  {/* <p className='font-medium'>Username</p> */}
+                  {!userName ? (
+                    <FormControl>
+                      <FormLabel
+                        fontSize="sm"
+                        mb="-0.5px"
+                        color="gray.500"
+                        fontWeight={400}
+                      >
+                        Username
+                      </FormLabel>
+                      <InputGroup>
+                        <Input
+                          placeholder="Set a username..."
+                          borderColor="#E2E8F0"
+                          type="text"
+                          onChange={handleChangeUserName}
+                        />
+                        <InputRightElement w="4.5rem">
+                          {editingUserName &&
+                          newUserName.length !== 0 &&
+                          userName !== newUserName ? (
+                            <Center>
+                              <Button
+                                h="32px"
+                                mr="4px"
+                                colorScheme="telegram"
+                                bg="primary"
+                                color="#fff"
+                                onClick={handleSaveUserName}
+                              >
+                                Save
+                              </Button>
+                            </Center>
+                          ) : null}
+                        </InputRightElement>
+                      </InputGroup>
+                      <FormHelperText color="gray.400">
+                        *You can only set your username once
+                      </FormHelperText>
+                    </FormControl>
+                  ) : (
+                    <p className="mx-auto text-center text-2xl font-medium text-gray-700">
+                      {userName}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
+
             <Options />
           </div>
 

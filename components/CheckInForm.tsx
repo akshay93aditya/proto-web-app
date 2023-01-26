@@ -91,7 +91,6 @@ const CheckInForm = () => {
   const errorToast = () =>
     toast({
       title: `Check-In failed`,
-
       status: 'error',
       duration: 5000,
       isClosable: true,
@@ -192,15 +191,6 @@ const CheckInForm = () => {
         return;
       }
 
-      let isConnectedtoOrbis = await orbis.isConnected();
-      console.log(isConnectedtoOrbis);
-      if (!isConnectedtoOrbis) {
-        await orbis.connect_v2({
-          provider: window?.phantom?.solana,
-          chain: 'solana',
-        });
-      }
-
       const usersResponse = await axios({
         method: 'get',
         url: `${baseUrl}/users`,
@@ -208,7 +198,6 @@ const CheckInForm = () => {
       });
 
       if (usersResponse.data.length) {
-        console.log(usersResponse);
         const orbisCheckinResponse = await orbis.createPost({
           body: checkInMessage,
           data: {
@@ -303,7 +292,7 @@ const CheckInForm = () => {
             uploadedFiles.push({ filename: file.name, hash: added.path });
             orbisUploadedFiles.push({
               url: `ipfs://${added.path}`,
-              gateway: 'https://proto.infura-ipfs.io',
+              gateway: 'https://proto-web.infura-ipfs.io/',
             });
           })
         );
@@ -377,18 +366,6 @@ const CheckInForm = () => {
             isRequired
           />
         </div>
-        {/* <Wallets /> */}
-        {/* {loading && (
-          <Audio
-            height="50"
-            width="100"
-            color="#14aede"
-            ariaLabel="audio-loading"
-            wrapperStyle={{}}
-            wrapperClass="wrapper-class"
-            visible={true}
-          />
-        )} */}
         <div className="mb-4 box-border flex w-full justify-between">
           {TagList.map((tag) => {
             return (
@@ -460,7 +437,6 @@ const CheckInForm = () => {
           />
         )}
       </form>
-      {/* {success && successToast()} */}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { Center, Heading } from '@chakra-ui/react';
+import { Center, Heading, Skeleton, SkeletonText } from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
@@ -55,23 +55,29 @@ export default function Options() {
           <div className="relative m-2 w-1/2 rounded-lg bg-[#DEAD2A]">
             {checkInCount && (
               <Center>
-                <div className="mt-2 flex">
-                  <div className="flex flex-col items-center">
-                    <Heading fontSize="42px" color="#fff">
-                      0
+                {status == 'loading' ? (
+                  <>
+                    <Skeleton height="20px" />
+                  </>
+                ) : (
+                  <div className="mt-2 flex">
+                    <div className="flex flex-col items-center">
+                      <Heading fontSize="42px" color="#fff">
+                        0
+                      </Heading>
+                      <SuccessCheckInIcon />
+                    </div>
+                    <Heading fontSize="42px" color="#fff" mx="8px">
+                      /
                     </Heading>
-                    <SuccessCheckInIcon />
+                    <div className="flex flex-col items-center">
+                      <Heading fontSize="42px" color="#fff">
+                        {checkInCount}
+                      </Heading>
+                      <FailedCheckInIcon />
+                    </div>
                   </div>
-                  <Heading fontSize="42px" color="#fff" mx="8px">
-                    /
-                  </Heading>
-                  <div className="flex flex-col items-center">
-                    <Heading fontSize="42px" color="#fff">
-                      {checkInCount}
-                    </Heading>
-                    <FailedCheckInIcon />
-                  </div>
-                </div>
+                )}
               </Center>
             )}
             <Heading

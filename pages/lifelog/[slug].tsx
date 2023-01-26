@@ -4,6 +4,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import SingleCheckIn from '../../components/SingleCheckIn';
 import { useSingleCheckIn } from '../../utils/singleCheckInInfo';
 import { useGetUserInfo } from '../../utils/userInfo';
+import { SkeletonText } from '@chakra-ui/react';
 
 export default function SingleLifelog() {
   const router = useRouter();
@@ -35,18 +36,32 @@ export default function SingleLifelog() {
 
   return (
     <div>
-      {checkIn && user && (
-        <SingleCheckIn
-          address={checkIn.user_wallet_address}
-          body={checkIn.message}
-          tag={checkIn.tag}
-          username={user.name}
-          lat={checkIn.latitude}
-          long={checkIn.longitude}
-          date={checkIn.createdAt}
-          files={checkIn.files}
-          pfp={user.profile_picture?.hash}
+      {status == 'loading' || userStatus == 'loading' ? (
+        <SkeletonText
+          noOfLines={4}
+          width="40%"
+          maxW="800px"
+          mx="auto"
+          my={20}
+          spacing="4"
+          startColor="gray.100"
+          endColor="gray.300"
         />
+      ) : (
+        checkIn &&
+        user && (
+          <SingleCheckIn
+            address={checkIn.user_wallet_address}
+            body={checkIn.message}
+            tag={checkIn.tag}
+            username={user.name}
+            lat={checkIn.latitude}
+            long={checkIn.longitude}
+            date={checkIn.createdAt}
+            files={checkIn.files}
+            pfp={user.profile_picture?.hash}
+          />
+        )
       )}
 
       {/* <div className='w-auto md:w-[500px] mx-auto p-4'>
