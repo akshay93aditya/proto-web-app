@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { utils, Program, AnchorProvider } from '@project-serum/anchor';
 import { useWallet } from '@solana/wallet-adapter-react';
 import axios from 'axios';
@@ -17,6 +17,7 @@ import { latLngToCell } from 'h3-js';
 import { FailedCheckInIcon } from '../dynamic/CheckInIcons';
 import { Orbis } from '@orbisclub/orbis-sdk';
 import { TagList } from './Taglist';
+import { OrbisContext } from '../context/OrbisContext';
 
 export type CheckIN = {
   lat: number;
@@ -47,8 +48,6 @@ const client = create({
   },
 });
 
-let orbis = new Orbis();
-
 const CheckInForm = () => {
   const [lat, setlat] = useState<number>(0);
   const [lng, setlng] = useState<number>(0);
@@ -70,6 +69,8 @@ const CheckInForm = () => {
 
   const wallet = useWallet();
 
+  const { orbis } = useContext(OrbisContext);
+
   const toast = useToast();
   const successToast = () =>
     toast({
@@ -90,15 +91,7 @@ const CheckInForm = () => {
   const errorToast = () =>
     toast({
       title: `Check-In failed`,
-      description: (
-        <a
-          href={`https://explorer.solana.com/tx/${checkInSignature}?cluster=devnet`}
-          rel="noreferrer"
-          target="_blank"
-        >
-          View in Explorer
-        </a>
-      ),
+
       status: 'error',
       duration: 5000,
       isClosable: true,

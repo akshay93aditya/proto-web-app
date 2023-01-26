@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Image from 'next/image';
 import {
   Button,
@@ -17,10 +17,9 @@ import axios from 'axios';
 import Options from '../components/Options';
 import { create } from 'ipfs-http-client';
 
-import { Orbis } from '@orbisclub/orbis-sdk';
 import SEOtag from '../components/SEOtag';
-
-let orbis = new Orbis();
+import { useGetUserInfo } from '../utils/userInfo';
+import { OrbisContext } from '../context/OrbisContext';
 
 const projectId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
 const projectSecret = process.env.NEXT_PUBLIC_INFURA_PROJECT_SECRET;
@@ -47,29 +46,17 @@ export default function Profile() {
   const [user, setUser] = useState<string>(null);
   const [_id, set_id] = useState<string>(null);
 
+  const { orbis } = useContext(OrbisContext);
+
+  const { data, status, error } = useGetUserInfo(wallet.publicKey);
+
   useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        let isConnectedtoOrbis = await orbis.isConnected();
-        console.log(isConnectedtoOrbis);
-        if (!isConnectedtoOrbis) {
-          await orbis.connect_v2({
-            provider: window?.phantom?.solana,
-            chain: 'solana',
-          });
-        }
-        const res = await axios.get('https://proto-api.onrender.com/users', {
-          params: { wallet_address: wallet.publicKey },
-        });
-        setUserName(res.data[0].name);
-        setProfilePic(res.data[0].profile_picture);
-        set_id(res.data[0]._id);
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    if (wallet.publicKey) fetchUserDetails();
-  }, [wallet.publicKey]);
+    if (status === 'success') {
+      set_id(data.data[0]?._id);
+      setUserName(data.data[0]?.name);
+      setProfilePic(data.data[0]?.profile_picture);
+    }
+  }, [data, status, error]);
 
   const handleImageUpload = async (e: any) => {
     try {

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { PublicKey, clusterApiUrl } from '@solana/web3.js';
+import { clusterApiUrl } from '@solana/web3.js';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 

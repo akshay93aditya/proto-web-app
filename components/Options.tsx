@@ -1,16 +1,9 @@
-import {
-  Button,
-  Center,
-  Circle,
-  Heading,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Center, Heading } from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import axios from 'axios';
 import Link from 'next/link';
-import React, { useState, useEffect, Suspense, useContext } from 'react';
-import Loading from '../components/Loading';
+import React, { useState, useEffect } from 'react';
 import { FailedCheckInIcon, SuccessCheckInIcon } from '../dynamic/CheckInIcons';
+import { useTimelineData } from '../utils/checkInInfo';
 
 interface Region {
   continents: number;
@@ -30,24 +23,14 @@ export default function Options() {
   const wallet = useWallet();
   const [checkInCount, setCheckInCount] = useState();
 
-  useEffect(() => {
-    async function getTimelineData() {
-      try {
-        const timelineResponse = await axios.get(
-          'https://proto-api.onrender.com/checkins',
-          {
-            params: { user_wallet_address: wallet?.publicKey },
-          }
-        );
-        setCheckInCount(timelineResponse.data.length);
-        console.log(timelineResponse.data.length);
-      } catch (err) {
-        console.log(err);
-      }
-    }
+  const { data, status, error } = useTimelineData(wallet.publicKey);
 
-    if (wallet?.publicKey) getTimelineData();
-  }, [wallet?.publicKey]);
+  useEffect(() => {
+    if (status == 'success') {
+      setCheckInCount(data.data.length);
+      console.log(data.data.length);
+    }
+  }, [data, status, error]);
 
   return (
     <div className="mx-auto max-w-[800px]">

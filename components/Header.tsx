@@ -10,7 +10,6 @@ export default function Header() {
 
   return (
     <div className="sticky top-0 z-20 flex w-full items-center justify-between bg-white py-2 px-2 shadow md:px-8">
-      {/* <ProfileIcon onClick={() => router.push('/profile')} /> */}
       <LogoSmall onClick={() => router.push('/')} />
       {router.pathname === '/' && (
         <InputGroup ml="4">

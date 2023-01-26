@@ -1,6 +1,6 @@
 import { Button, Center } from '@chakra-ui/react';
 import React, { Suspense, useEffect, useState, useRef } from 'react';
-import CheckIn from '../components/CheckInForm';
+import CheckInForm from '../components/CheckInForm';
 import Loading from '../components/Loading';
 import Map from '../components/Map';
 import SEOtag from '../components/SEOtag';
@@ -50,7 +50,7 @@ export default function Checkin() {
       <div>
         {isOpen ? (
           <div ref={wrapperRef}>
-            <CheckIn />
+            <CheckInForm />
           </div>
         ) : (
           <div className="height-0 width-0 invisible"></div>

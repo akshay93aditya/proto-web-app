@@ -1,37 +1,24 @@
 import { Center } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import Timeline from '../../components/Timeline';
-import axios from 'axios';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Orbis } from '@orbisclub/orbis-sdk';
 import SEOtag from '../../components/SEOtag';
-
-// let orbis = new Orbis();
+import { useTimelineData } from '../../utils/checkInInfo';
 
 export default function Lifelog() {
   const [timelineData, setTimelineData] = useState([]);
   const { publicKey } = useWallet();
 
-  useEffect(() => {
-    async function getTimelineData() {
-      try {
-        const timelineResponse = await axios.get(
-          'https://proto-api.onrender.com/checkins',
-          {
-            params: { user_wallet_address: publicKey },
-          }
-        );
-        const reversedData = timelineResponse.data.sort(
-          (a, b) => b.created_at - a.created_at
-        );
-        setTimelineData(reversedData);
-      } catch (err) {
-        console.log(err);
-      }
-    }
+  const { data, status, error } = useTimelineData(publicKey);
 
-    if (publicKey) getTimelineData();
-  }, [publicKey]);
+  useEffect(() => {
+    if (status == 'success') {
+      const reversedData = data.data.sort(
+        (a, b) => b.created_at - a.created_at
+      );
+      setTimelineData(reversedData);
+    }
+  }, [data, status, error]);
 
   return (
     <div>

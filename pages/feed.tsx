@@ -1,15 +1,16 @@
 import { Center, Circle, Divider, Image } from '@chakra-ui/react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Orbis } from '@orbisclub/orbis-sdk';
 import FeedCard from '../components/FeedCard';
 import SEOtag from '../components/SEOtag';
-
-let orbis = new Orbis();
+import { OrbisContext } from '../context/OrbisContext';
 
 export default function Feed() {
   const [feedData, setFeedData] = useState<any>();
   const { publicKey } = useWallet();
+
+  const { orbis } = useContext(OrbisContext);
 
   useEffect(() => {
     async function getPosts() {
@@ -28,7 +29,7 @@ export default function Feed() {
     }
 
     if (publicKey) getPosts();
-  }, [publicKey]);
+  }, [publicKey, orbis]);
 
   return (
     <div className="mb-24">

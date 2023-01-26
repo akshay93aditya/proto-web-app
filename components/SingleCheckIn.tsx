@@ -175,7 +175,6 @@ export default function SingleCheckIn({
           </div>
         </Box>
       )}
-      {/* <Divider /> */}
     </div>
   );
 }
