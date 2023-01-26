@@ -34,7 +34,7 @@ export default function Feed() {
     <div className="mb-24">
       <SEOtag title="Feed | Proto" />
       <div>
-        <Center>
+        <div className="mx-auto">
           <div className="divide-y divide-gray-300">
             {feedData?.map((data, index) => (
               <FeedCard
@@ -51,7 +51,7 @@ export default function Feed() {
               />
             ))}
           </div>
-        </Center>
+        </div>
       </div>
     </div>
   );

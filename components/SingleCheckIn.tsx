@@ -10,7 +10,7 @@ import {
 import { TagList } from './Taglist';
 import { useState } from 'react';
 
-export default function FeedCard({
+export default function SingleCheckIn({
   body,
   tag,
   username,
@@ -22,9 +22,9 @@ export default function FeedCard({
   address,
 }) {
   const dateTime = dateFormat(date * 1000, 'dd mmmm yyyy, HH:MM:ss');
-  const url1 = files[0]?.url.replace('ipfs://', 'https://ipfs.io/ipfs/');
-  const url2 = files[1]?.url.replace('ipfs://', 'https://ipfs.io/ipfs/');
-  const url3 = files[2]?.url.replace('ipfs://', 'https://ipfs.io/ipfs/');
+  const url1 = files[0]?.hash;
+  const url2 = files[1]?.hash;
+  const url3 = files[2]?.hash;
 
   const [url, setUrl] = useState<string>();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -36,7 +36,7 @@ export default function FeedCard({
     };
     return (
       <Image
-        src={src}
+        src={`https://ipfs.io/ipfs/${src}`}
         onClick={handleClick}
         alt=""
         {...props}
@@ -50,7 +50,7 @@ export default function FeedCard({
       <ChakraModal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <Image src={url} alt="" />
+          <Image src={`https://ipfs.io/ipfs/${url}`} alt="" />
         </ModalContent>
       </ChakraModal>
     );
@@ -59,12 +59,14 @@ export default function FeedCard({
   const tagIcon = TagList.find((t) => t.title === tag)?.icon;
   const truncatedAddress =
     address.substring(0, 4) + '...' + address.substring(address.length - 4);
+  const tagName = TagList.find((t) => t.title === tag)?.title;
+
   return (
     <div className="my-2 mx-auto w-96  px-2 py-4">
       <Modal />
       <div className="flex items-center align-middle ">
         <Image
-          src={pfp ? pfp : '/profileplaceholder.svg'}
+          src={pfp ? `https://ipfs.io/ipfs/${pfp}` : '/profileplaceholder.svg'}
           alt="pfp"
           className=" mr-2 h-16 w-16 cursor-pointer rounded-full border border-[#b6b8b9] object-cover"
         />
@@ -81,12 +83,14 @@ export default function FeedCard({
           <p className=" text-[14px] text-gray-400">{dateTime}</p>
         </div>
       </div>
-      <p className=" ml-1 py-4 text-xl text-primary">{body}</p>
+      <p className=" ml-1 py-4 text-2xl text-primary">{body}</p>
+      <p className=" ml-1 py-2">
+        {lat}, {long}
+      </p>
+
       <div className=" flex items-center pb-2">
         <div className="mx-1 ">{tag && tagIcon}</div>
-        <p className=" py-2 text-xs text-gray-600">
-          {lat}, {long}
-        </p>
+        <p className="py-2 text-gray-600">{tagName}</p>
       </div>
 
       {files && files.length == 1 && (

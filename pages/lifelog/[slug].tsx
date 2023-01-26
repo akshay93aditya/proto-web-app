@@ -4,23 +4,16 @@ import React, { useEffect, useState } from 'react';
 import Timeline from '../../components/Timeline';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+import { useWallet } from '@solana/wallet-adapter-react';
+import SingleCheckIn from '../../components/SingleCheckIn';
 
 export default function SingleLifelog() {
-  const NearbyImage = () => {
-    return (
-      <Image
-        src="/profileplaceholder.svg"
-        alt="profile placeholder"
-        width={120}
-        height={120}
-        className="m-4 rounded-lg"
-      />
-    );
-  };
-
   const router = useRouter();
   const { slug } = router.query;
   const [checkIn, setCheckin] = useState<any>();
+  const [user, setUser] = useState<any>();
+
+  const wallet = useWallet();
 
   useEffect(() => {
     async function getCheckInDetails() {
@@ -28,8 +21,19 @@ export default function SingleLifelog() {
         const checkInDetails = await axios.get(
           `https://proto-api.onrender.com/checkins/${slug}`
         );
-        console.log(checkInDetails);
+        console.log(checkInDetails.data);
         setCheckin(checkInDetails.data);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    async function getUserDetails() {
+      try {
+        const res = await axios.get('https://proto-api.onrender.com/users', {
+          params: { wallet_address: wallet.publicKey },
+        });
+        console.log(res.data);
+        setUser(res.data[0]);
       } catch (e) {
         console.log(e);
       }
@@ -37,44 +41,27 @@ export default function SingleLifelog() {
     if (slug) {
       getCheckInDetails();
     }
-  }, [slug]);
+    if (wallet) {
+      getUserDetails();
+    }
+  }, [slug, wallet]);
 
   return (
     <div>
-      <Flex flexDir="column">
-        <Flex justifyContent="center">
-          <NearbyImage />
-          <NearbyImage />
-        </Flex>
-        <Flex justifyContent="center">
-          <NearbyImage />
-          <NearbyImage />
-        </Flex>
-      </Flex>
-      <Center>
-        <div className=" z-0 mt-4 block">
-          <ol className="relative border-l border-primary">
-            {checkIn && (
-              <Timeline
-                message={checkIn.message}
-                createdAt={checkIn.createdAt}
-                latitude={checkIn.latitude}
-                longitude={checkIn.longitude}
-                index={1}
-                arrLength={0}
-                files={checkIn.files}
-              />
-            )}
-          </ol>
-        </div>
-      </Center>
-      <div className="bg-primary">
-        {checkIn && (
-          <p className="p-2 text-center text-lg font-semibold text-white">
-            {checkIn.latitude}, {checkIn.longitude}
-          </p>
-        )}
-      </div>
+      {checkIn && user && (
+        <SingleCheckIn
+          address={checkIn.user_wallet_address}
+          body={checkIn.message}
+          tag={checkIn.tag}
+          username={user.name}
+          lat={checkIn.latitude}
+          long={checkIn.longitude}
+          date={checkIn.createdAt}
+          files={checkIn.files}
+          pfp={user.profile_picture?.hash}
+        />
+      )}
+
       {/* <div className='w-auto md:w-[500px] mx-auto p-4'>
 				<p className='text-xs mt-6 opacity-70'>
 					Signature:
