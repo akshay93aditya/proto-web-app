@@ -1,155 +1,155 @@
 export type Work = {
-  version: "0.1.0";
-  name: "proto";
+  version: '0.1.0';
+  name: 'proto';
   instructions: [
     {
-      name: "saveGeoJson";
+      name: 'saveGeoJson';
       accounts: [
         {
-          name: "user";
+          name: 'user';
           isMut: true;
           isSigner: true;
         },
         {
-          name: "geoJson";
+          name: 'geoJson';
           isMut: true;
           isSigner: false;
         },
         {
-          name: "systemProgram";
+          name: 'systemProgram';
           isMut: false;
           isSigner: false;
         }
       ];
       args: [
         {
-          name: "geodata";
+          name: 'geodata';
           type: {
-            defined: "GeoData";
+            defined: 'GeoData';
           };
         }
       ];
     },
     {
-      name: "checkIn";
+      name: 'checkIn';
       accounts: [
         {
-          name: "user";
+          name: 'user';
           isMut: true;
           isSigner: true;
         },
         {
-          name: "checkIn";
+          name: 'checkIn';
           isMut: true;
           isSigner: false;
         },
         {
-          name: "systemProgram";
+          name: 'systemProgram';
           isMut: false;
           isSigner: false;
         }
       ];
       args: [
         {
-          name: "hindex";
-          type: "string";
+          name: 'hindex';
+          type: 'string';
         },
         {
-          name: "mongoId";
-          type: "string";
+          name: 'mongoId';
+          type: 'string';
         },
         {
-          name: "message";
-          type: "string";
+          name: 'message';
+          type: 'string';
         }
       ];
     }
   ];
   accounts: [
     {
-      name: "GeoJsonData";
+      name: 'GeoJsonData';
       type: {
-        kind: "struct";
+        kind: 'struct';
         fields: [
           {
-            name: "owner";
-            type: "publicKey";
+            name: 'owner';
+            type: 'publicKey';
           },
           {
-            name: "geojson";
-            type: "string";
+            name: 'geojson';
+            type: 'string';
           },
           {
-            name: "mongoId";
-            type: "string";
+            name: 'mongoId';
+            type: 'string';
           }
         ];
       };
     },
     {
-      name: "CheckInData";
+      name: 'CheckInData';
       type: {
-        kind: "struct";
+        kind: 'struct';
         fields: [
           {
-            name: "owner";
-            type: "publicKey";
+            name: 'owner';
+            type: 'publicKey';
           },
           {
-            name: "hindex";
-            type: "string";
+            name: 'hindex';
+            type: 'string';
           },
           {
-            name: "message";
-            type: "string";
+            name: 'message';
+            type: 'string';
           },
           {
-            name: "mongoId";
-            type: "string";
+            name: 'mongoId';
+            type: 'string';
           }
         ];
       };
     },
     {
-      name: "GeoJsonData";
+      name: 'GeoJsonData';
       type: {
-        kind: "struct";
+        kind: 'struct';
         fields: [
           {
-            name: "owner";
-            type: "publicKey";
+            name: 'owner';
+            type: 'publicKey';
           },
           {
-            name: "geojson";
-            type: "string";
+            name: 'geojson';
+            type: 'string';
           },
           {
-            name: "mongoId";
-            type: "string";
+            name: 'mongoId';
+            type: 'string';
           }
         ];
       };
     },
     {
-      name: "CheckInData";
+      name: 'CheckInData';
       type: {
-        kind: "struct";
+        kind: 'struct';
         fields: [
           {
-            name: "owner";
-            type: "publicKey";
+            name: 'owner';
+            type: 'publicKey';
           },
           {
-            name: "hindex";
-            type: "string";
+            name: 'hindex';
+            type: 'string';
           },
           {
-            name: "message";
-            type: "string";
+            name: 'message';
+            type: 'string';
           },
           {
-            name: "mongoId";
-            type: "string";
+            name: 'mongoId';
+            type: 'string';
           }
         ];
       };
@@ -157,17 +157,17 @@ export type Work = {
   ];
   types: [
     {
-      name: "GeoData";
+      name: 'GeoData';
       type: {
-        kind: "struct";
+        kind: 'struct';
         fields: [
           {
-            name: "geojson";
-            type: "string";
+            name: 'geojson';
+            type: 'string';
           },
           {
-            name: "mongoId";
-            type: "string";
+            name: 'mongoId';
+            type: 'string';
           }
         ];
       };
@@ -176,164 +176,164 @@ export type Work = {
   errors: [
     {
       code: 6000;
-      name: "InvalidGeoJson";
-      msg: "Invalid GeoJson";
+      name: 'InvalidGeoJson';
+      msg: 'Invalid GeoJson';
     }
   ];
 };
 
 export const idl: Work = {
-  version: "0.1.0",
-  name: "proto",
+  version: '0.1.0',
+  name: 'proto',
   instructions: [
     {
-      name: "saveGeoJson",
+      name: 'saveGeoJson',
       accounts: [
         {
-          name: "user",
+          name: 'user',
           isMut: true,
           isSigner: true,
         },
         {
-          name: "geoJson",
+          name: 'geoJson',
           isMut: true,
           isSigner: false,
         },
         {
-          name: "systemProgram",
+          name: 'systemProgram',
           isMut: false,
           isSigner: false,
         },
       ],
       args: [
         {
-          name: "geodata",
+          name: 'geodata',
           type: {
-            defined: "GeoData",
+            defined: 'GeoData',
           },
         },
       ],
     },
     {
-      name: "checkIn",
+      name: 'checkIn',
       accounts: [
         {
-          name: "user",
+          name: 'user',
           isMut: true,
           isSigner: true,
         },
         {
-          name: "checkIn",
+          name: 'checkIn',
           isMut: true,
           isSigner: false,
         },
         {
-          name: "systemProgram",
+          name: 'systemProgram',
           isMut: false,
           isSigner: false,
         },
       ],
       args: [
         {
-          name: "hindex",
-          type: "string",
+          name: 'hindex',
+          type: 'string',
         },
         {
-          name: "mongoId",
-          type: "string",
+          name: 'mongoId',
+          type: 'string',
         },
         {
-          name: "message",
-          type: "string",
+          name: 'message',
+          type: 'string',
         },
       ],
     },
   ],
   accounts: [
     {
-      name: "GeoJsonData",
+      name: 'GeoJsonData',
       type: {
-        kind: "struct",
+        kind: 'struct',
         fields: [
           {
-            name: "owner",
-            type: "publicKey",
+            name: 'owner',
+            type: 'publicKey',
           },
           {
-            name: "geojson",
-            type: "string",
+            name: 'geojson',
+            type: 'string',
           },
           {
-            name: "mongoId",
-            type: "string",
+            name: 'mongoId',
+            type: 'string',
           },
         ],
       },
     },
     {
-      name: "CheckInData",
+      name: 'CheckInData',
       type: {
-        kind: "struct",
+        kind: 'struct',
         fields: [
           {
-            name: "owner",
-            type: "publicKey",
+            name: 'owner',
+            type: 'publicKey',
           },
           {
-            name: "hindex",
-            type: "string",
+            name: 'hindex',
+            type: 'string',
           },
           {
-            name: "message",
-            type: "string",
+            name: 'message',
+            type: 'string',
           },
           {
-            name: "mongoId",
-            type: "string",
+            name: 'mongoId',
+            type: 'string',
           },
         ],
       },
     },
     {
-      name: "GeoJsonData",
+      name: 'GeoJsonData',
       type: {
-        kind: "struct",
+        kind: 'struct',
         fields: [
           {
-            name: "owner",
-            type: "publicKey",
+            name: 'owner',
+            type: 'publicKey',
           },
           {
-            name: "geojson",
-            type: "string",
+            name: 'geojson',
+            type: 'string',
           },
           {
-            name: "mongoId",
-            type: "string",
+            name: 'mongoId',
+            type: 'string',
           },
         ],
       },
     },
     {
-      name: "CheckInData",
+      name: 'CheckInData',
       type: {
-        kind: "struct",
+        kind: 'struct',
         fields: [
           {
-            name: "owner",
-            type: "publicKey",
+            name: 'owner',
+            type: 'publicKey',
           },
           {
-            name: "hindex",
-            type: "string",
+            name: 'hindex',
+            type: 'string',
           },
           {
-            name: "message",
-            type: "string",
+            name: 'message',
+            type: 'string',
           },
           {
-            name: "mongoId",
-            type: "string",
+            name: 'mongoId',
+            type: 'string',
           },
         ],
       },
@@ -341,17 +341,17 @@ export const idl: Work = {
   ],
   types: [
     {
-      name: "GeoData",
+      name: 'GeoData',
       type: {
-        kind: "struct",
+        kind: 'struct',
         fields: [
           {
-            name: "geojson",
-            type: "string",
+            name: 'geojson',
+            type: 'string',
           },
           {
-            name: "mongoId",
-            type: "string",
+            name: 'mongoId',
+            type: 'string',
           },
         ],
       },
@@ -360,8 +360,8 @@ export const idl: Work = {
   errors: [
     {
       code: 6000,
-      name: "InvalidGeoJson",
-      msg: "Invalid GeoJson",
+      name: 'InvalidGeoJson',
+      msg: 'Invalid GeoJson',
     },
   ],
 };
