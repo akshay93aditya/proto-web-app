@@ -1,4 +1,6 @@
 import { Button, Center } from '@chakra-ui/react';
+import { Wallet } from '@project-serum/anchor';
+import { useWallet } from '@solana/wallet-adapter-react';
 import React, { Suspense, useEffect, useState, useRef } from 'react';
 import CheckInForm from '../components/CheckInForm';
 import Loading from '../components/Loading';
@@ -6,6 +8,7 @@ import Map from '../components/Map';
 import SEOtag from '../components/SEOtag';
 
 export default function Checkin() {
+  const { connected } = useWallet();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   function ClickedOutside(ref) {
     useEffect(() => {
@@ -28,23 +31,25 @@ export default function Checkin() {
     <Suspense fallback={<Loading />}>
       <SEOtag title="Home | Proto" />
       <Center>
-        <Button
-          transition="all ease-in-out duration-500"
-          _hover={{ bg: '#14A1DE' }}
-          color="#fff"
-          bg="#14aede"
-          position="absolute"
-          zIndex="10"
-          bottom="0"
-          mb={{ base: 20, md: 4 }}
-          w={{ base: '90%', md: 3 / 5 }}
-          maxW="600px"
-          size="lg"
-          colorScheme="telegram"
-          onClick={() => setIsOpen(true)}
-        >
-          Check-in
-        </Button>
+        {connected && (
+          <Button
+            transition="all ease-in-out duration-500"
+            _hover={{ bg: '#14A1DE' }}
+            color="#fff"
+            bg="#14aede"
+            position="absolute"
+            zIndex="10"
+            bottom="0"
+            mb={{ base: 20, md: 4 }}
+            w={{ base: '90%', md: 3 / 5 }}
+            maxW="600px"
+            size="lg"
+            colorScheme="telegram"
+            onClick={() => setIsOpen(true)}
+          >
+            Check-in
+          </Button>
+        )}
       </Center>
       <Map />
       <div>
