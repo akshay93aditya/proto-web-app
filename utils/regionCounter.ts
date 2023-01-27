@@ -9,7 +9,6 @@ export function regionCounter(data) {
       data[i].latitude,
       data[i].longitude
     );
-    console.log(lookUp(data[i].latitude, data[i].longitude));
 
     if (!continentCounter[continent_code]) {
       continentCounter[continent_code] = true;

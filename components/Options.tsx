@@ -10,6 +10,7 @@ import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { FailedCheckInIcon, SuccessCheckInIcon } from '../dynamic/CheckInIcons';
 import { useTimelineData } from '../utils/checkInInfo';
+import { placesCounter } from '../utils/placesCounter';
 import { regionCounter } from '../utils/regionCounter';
 
 interface Region {
@@ -19,9 +20,12 @@ interface Region {
 }
 
 interface Places {
-  events: number;
-  attractions: number;
-  landmarks: number;
+  Event: number;
+  Food: number;
+  Landmark: number;
+  Market: number;
+  'Pt of Interest': number;
+  Tourism: number;
 }
 
 export default function Options() {
@@ -29,7 +33,14 @@ export default function Options() {
     countries: 0,
     continents: 0,
   });
-  const [places, setPlaces] = useState<Places | {}>({});
+  const [places, setPlaces] = useState<Places>({
+    Event: 0,
+    Food: 0,
+    Landmark: 0,
+    Market: 0,
+    'Pt of Interest': 0,
+    Tourism: 0,
+  });
   const wallet = useWallet();
   const [checkInCount, setCheckInCount] = useState();
 
@@ -40,6 +51,8 @@ export default function Options() {
       setCheckInCount(data.data.length);
       console.log(data.data);
       setRegions(regionCounter(data.data));
+      console.log(placesCounter(data.data));
+      setPlaces(placesCounter(data.data));
     }
   }, [data, status, error]);
 
@@ -120,7 +133,7 @@ export default function Options() {
               Regions
             </Heading>
           </div>
-          <div className="relative m-2 w-1/2 rounded-lg bg-[#0c747a] shadow-md">
+          <div className="relative m-2 w-1/2 rounded-lg bg-[#0c747a] p-4 shadow-md">
             <Heading
               fontSize="2xl"
               color="#fff"
@@ -128,6 +141,32 @@ export default function Options() {
             >
               Places
             </Heading>
+            <div className="text-sm">
+              <div className="flex items-center justify-between">
+                <Text color="#fff">{places && places.Event}</Text>
+                <Text color="#fff">Events</Text>
+              </div>
+              <div className="flex items-center justify-between">
+                <Text color="#fff">{places && places.Food}</Text>
+                <Text color="#fff">Food</Text>
+              </div>
+              <div className="flex items-center justify-between">
+                <Text color="#fff">{places && places.Landmark}</Text>
+                <Text color="#fff">Landmarks</Text>
+              </div>
+              <div className="flex items-center justify-between">
+                <Text color="#fff">{places && places.Tourism}</Text>
+                <Text color="#fff">Tourism</Text>
+              </div>
+              <div className="flex items-center justify-between">
+                <Text color="#fff">{places && places.Market}</Text>
+                <Text color="#fff">Market</Text>
+              </div>
+              <div className="flex items-center justify-between">
+                <Text color="#fff">{places && places['Pt of Interest']}</Text>
+                <Text color="#fff">Points of Interest</Text>
+              </div>
+            </div>
           </div>
         </div>
         {wallet.connected && (

@@ -76,6 +76,7 @@ export async function CheckInTransaction(
       url: `${baseUrl}/checkins/${mongoId}/pdls`,
       data: {
         pdl: checkInPDA,
+        signature: sig,
       },
     });
     setPdl(checkInPDA.toString());

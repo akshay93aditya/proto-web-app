@@ -16,6 +16,7 @@ export default function Lifelog() {
       const reversedData = data.data.sort(
         (a, b) => b.created_at - a.created_at
       );
+      console.log(data.data);
       setTimelineData(reversedData);
     }
   }, [data, status, error]);
