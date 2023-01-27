@@ -57,6 +57,7 @@ export default function HistoricalCheckIns() {
 
   useEffect(() => {
     fetchCheckins();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet]);
 
   useEffect(() => {
