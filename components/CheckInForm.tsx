@@ -71,8 +71,12 @@ export default function CheckInForm() {
       maximumAge: Infinity,
     };
     function success(position: any) {
-      setlat(position.coords.latitude);
-      setlng(position.coords.longitude);
+      setlat(
+        Math.round((position.coords.latitude + Number.EPSILON) * 10000) / 10000
+      );
+      setlng(
+        Math.round((position.coords.longitude + Number.EPSILON) * 10000) / 10000
+      );
     }
     function error(err: any) {
       console.warn(`ERROR(${err.code}): ${err.message}`);
