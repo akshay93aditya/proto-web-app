@@ -47,6 +47,7 @@
 		"styled-components": "^5.3.6"
 	},
 	"devDependencies": {
+		"@types/mapbox-gl": "^2.7.10",
 		"@types/node": "18.11.17",
 		"@types/react": "18.0.26",
 		"autoprefixer": "^10.4.13",
