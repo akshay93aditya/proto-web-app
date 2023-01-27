@@ -7,6 +7,7 @@ import SEOtag from '../components/SEOtag';
 import { OrbisContext } from '../context/OrbisContext';
 
 export default function Feed() {
+  const { lookUp } = require('geojson-places');
   const [feedData, setFeedData] = useState<any>();
   const { publicKey } = useWallet();
 

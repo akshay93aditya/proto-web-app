@@ -1,14 +1,21 @@
-import { Center, Heading, Skeleton, SkeletonText } from '@chakra-ui/react';
+import {
+  Center,
+  Heading,
+  Skeleton,
+  SkeletonText,
+  Text,
+} from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { FailedCheckInIcon, SuccessCheckInIcon } from '../dynamic/CheckInIcons';
 import { useTimelineData } from '../utils/checkInInfo';
+import { regionCounter } from '../utils/regionCounter';
 
 interface Region {
-  continents: number;
   countries: number;
-  cities: number;
+  continents: number;
+  // cities: number;
 }
 
 interface Places {
@@ -18,8 +25,11 @@ interface Places {
 }
 
 export default function Options() {
-  const [regions, setRegions] = useState<Region | []>([]);
-  const [places, setPlaces] = useState<Places | []>([]);
+  const [regions, setRegions] = useState<Region>({
+    countries: 0,
+    continents: 0,
+  });
+  const [places, setPlaces] = useState<Places | {}>({});
   const wallet = useWallet();
   const [checkInCount, setCheckInCount] = useState();
 
@@ -28,7 +38,8 @@ export default function Options() {
   useEffect(() => {
     if (status == 'success') {
       setCheckInCount(data.data.length);
-      console.log(data.data.length);
+      console.log(data.data);
+      setRegions(regionCounter(data.data));
     }
   }, [data, status, error]);
 
@@ -41,7 +52,7 @@ export default function Options() {
             href="/"
             className='relative m-2 w-1/2 rounded-lg
                     border-2 border-primary
-					bg-[#6fe0a8] bg-[url("/map-placeholder.png")] bg-cover bg-no-repeat'
+					bg-[#6fe0a8] bg-[url("/map-placeholder.png")] bg-cover bg-no-repeat shadow-md'
           >
             {/* <Image src='/profileplaceholder.svg' alt='placeholder' fill /> */}
             <Heading
@@ -52,7 +63,7 @@ export default function Options() {
               Check-In Map
             </Heading>
           </Link>
-          <div className="relative m-2 w-1/2 rounded-lg bg-[#DEAD2A]">
+          <div className="relative m-2 w-1/2 rounded-lg bg-[#DEAD2A] shadow-md">
             {checkInCount && (
               <Center>
                 {status == 'loading' ? (
@@ -90,7 +101,16 @@ export default function Options() {
           </div>
         </div>
         <div className="flex h-[200px]">
-          <div className="relative m-2 w-1/2 rounded-lg bg-[#077191]">
+          <div className="relative m-2 w-1/2 rounded-lg bg-[#077191] p-4 shadow-md">
+            <div className="flex items-center justify-between">
+              <Heading color="#fff">{regions && regions.countries}</Heading>
+              <Text color="#fff">Countries</Text>
+            </div>
+            <div className="flex items-center justify-between">
+              <Heading color="#fff">{regions && regions.continents}</Heading>
+              <Text color="#fff">Continents</Text>
+            </div>
+
             <Heading
               fontSize="2xl"
               color="#fff"
@@ -100,7 +120,7 @@ export default function Options() {
               Regions
             </Heading>
           </div>
-          <div className="relative m-2 w-1/2 rounded-lg bg-[#0c747a]">
+          <div className="relative m-2 w-1/2 rounded-lg bg-[#0c747a] shadow-md">
             <Heading
               fontSize="2xl"
               color="#fff"
