@@ -60,6 +60,7 @@ export default function SingleLifelog() {
             date={checkIn.createdAt}
             files={checkIn.files}
             pfp={user.profile_picture?.hash}
+            signature={checkIn.signature}
           />
         )
       )}
