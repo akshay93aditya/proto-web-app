@@ -59,10 +59,6 @@ export default function HistoricalCheckIns() {
   });
 
   useEffect(() => {
-    fetchCheckins();
-  }, [wallet]);
-
-  useEffect(() => {
     if (!map.current) return; // wait for map to initialize
     map.current.on('move', () => {
       setLng(map.current.getCenter().lng.toFixed(4));
