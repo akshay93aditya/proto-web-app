@@ -44,7 +44,8 @@ export async function CheckInTransaction(
   checkInMessage,
   setPdl,
   setcheckIn,
-  setCheckInSignature
+  setCheckInSignature,
+  checkInSignature
 ) {
   const provider = getProvider();
   const hindex = latLngToCell(lat, lng, 7);
@@ -70,7 +71,10 @@ export async function CheckInTransaction(
         systemProgram: SystemProgram.programId,
       })
       .rpc();
+    console.log(sig);
     // save generated pdl for this checkin
+    // setCheckInSignature(sig);
+
     const checkinPdlResponse = await axios({
       method: 'post',
       url: `${baseUrl}/checkins/${mongoId}/pdls`,
@@ -81,7 +85,6 @@ export async function CheckInTransaction(
     });
     setPdl(checkInPDA.toString());
     setcheckIn(checkinPdlResponse.data);
-    setCheckInSignature(sig);
   } catch (error) {
     console.error(error);
     throw new Error(error);

@@ -71,8 +71,8 @@ export default function CheckInForm() {
       maximumAge: Infinity,
     };
     function success(position: any) {
-      setlat(position.coords.latitude.toFixed(4));
-      setlng(position.coords.longitude.toFixed(4));
+      setlat(position.coords.latitude);
+      setlng(position.coords.longitude);
     }
     function error(err: any) {
       console.warn(`ERROR(${err.code}): ${err.message}`);
@@ -210,6 +210,7 @@ export default function CheckInForm() {
             orbisFiles,
             orbis,
             setPdl,
+            checkInSignature,
             setCheckInSignature,
             lat,
             lng

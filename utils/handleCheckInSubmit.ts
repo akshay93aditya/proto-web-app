@@ -16,11 +16,13 @@ export async function handleCheckInSubmit(
   orbisFiles,
   orbis,
   setPdl,
+  checkInSignature,
   setCheckInSignature,
   lat,
   lng
 ) {
   e.preventDefault();
+  setSuccess();
   try {
     setLoading(true);
     if (!wallet.publicKey) {
@@ -68,6 +70,7 @@ export async function handleCheckInSubmit(
           checkInMessage,
           setPdl,
           setcheckIn,
+          checkInSignature,
           setCheckInSignature
         );
         setcheckIn(checkinResponse);
@@ -112,7 +115,8 @@ export async function handleCheckInSubmit(
         checkInMessage,
         setPdl,
         setcheckIn,
-        setCheckInSignature
+        setCheckInSignature,
+        checkInSignature
       );
       setcheckIn(checkinResponse.data);
       setLoading(false);
