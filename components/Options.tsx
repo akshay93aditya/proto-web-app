@@ -14,9 +14,9 @@ import { placesCounter } from '../utils/placesCounter';
 import { regionCounter } from '../utils/regionCounter';
 
 interface Region {
-  countries: number;
   continents: number;
-  // cities: number;
+  countries: number;
+  states: number;
 }
 
 interface Places {
@@ -30,8 +30,9 @@ interface Places {
 
 export default function Options() {
   const [regions, setRegions] = useState<Region>({
-    countries: 0,
     continents: 0,
+    countries: 0,
+    states: 0,
   });
   const [places, setPlaces] = useState<Places>({
     Event: 0,
@@ -118,16 +119,22 @@ export default function Options() {
         <div className="flex h-[200px]">
           <div className="relative m-2 w-1/2 rounded-lg bg-[#077191] p-4 shadow-md">
             <div className="flex items-center justify-between">
-              <Heading color="#CEF2FD" fontFamily="Inter">
-                {regions && regions.countries}
-              </Heading>
-              <Text color="#CEF2FD">Countries</Text>
-            </div>
-            <div className="flex items-center justify-between">
+              <Text color="#CEF2FD">Continents</Text>
               <Heading color="#CEF2FD" fontFamily="Inter">
                 {regions && regions.continents}
               </Heading>
-              <Text color="#CEF2FD">Continents</Text>
+            </div>
+            <div className="flex items-center justify-between">
+              <Text color="#CEF2FD">Countries</Text>
+              <Heading color="#CEF2FD" fontFamily="Inter">
+                {regions && regions.countries}
+              </Heading>
+            </div>
+            <div className="flex items-center justify-between">
+              <Text color="#CEF2FD">States</Text>
+              <Heading color="#CEF2FD" fontFamily="Inter">
+                {regions && regions.states}
+              </Heading>
             </div>
 
             <Heading
@@ -150,30 +157,30 @@ export default function Options() {
             </Heading>
             <div className="text-sm">
               <div className="flex items-center justify-between">
-                <Text color="#D1F8FA">{places && places.Event}</Text>
                 <Text color="#D1F8FA">Events</Text>
+                <Text color="#D1F8FA">{places && places.Event}</Text>
               </div>
               <div className="flex items-center justify-between">
-                <Text color="#D1F8FA">{places && places.Food}</Text>
                 <Text color="#D1F8FA">Food</Text>
+                <Text color="#D1F8FA">{places && places.Food}</Text>
               </div>
               <div className="flex items-center justify-between">
-                <Text color="#D1F8FA">{places && places.Landmark}</Text>
                 <Text color="#D1F8FA">Landmarks</Text>
+                <Text color="#D1F8FA">{places && places.Landmark}</Text>
               </div>
               <div className="flex items-center justify-between">
-                <Text color="#D1F8FA">{places && places.Tourism}</Text>
                 <Text color="#D1F8FA">Tourism</Text>
+                <Text color="#D1F8FA">{places && places.Tourism}</Text>
               </div>
               <div className="flex items-center justify-between">
-                <Text color="#D1F8FA">{places && places.Market}</Text>
                 <Text color="#D1F8FA">Market</Text>
+                <Text color="#D1F8FA">{places && places.Market}</Text>
               </div>
               <div className="flex items-center justify-between">
+                <Text color="#D1F8FA">Points of Interest</Text>
                 <Text color="#D1F8FA">
                   {places && places['Pt of Interest']}
                 </Text>
-                <Text color="#D1F8FA">Points of Interest</Text>
               </div>
             </div>
           </div>
