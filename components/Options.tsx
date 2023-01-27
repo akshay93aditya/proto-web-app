@@ -62,7 +62,7 @@ export default function Options() {
       <div className=" flex flex-col py-2 md:px-6">
         <div className="flex h-[200px]">
           <Link
-            href="/history"
+            href="/"
             className='relative m-2 w-1/2 rounded-lg
                     border-2 border-primary
 					bg-[#6fe0a8] bg-[url("/map-placeholder.png")] bg-cover bg-no-repeat shadow-md'

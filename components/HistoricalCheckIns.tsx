@@ -15,17 +15,20 @@ export default function HistoricalCheckIns() {
   const wallet = useWallet();
   let baseUrl = 'https://proto-api.onrender.com';
 
-  async function fetchCheckins() {
-    if (wallet.publicKey) {
-      let response = await axios({
-        url: `${baseUrl}/checkins`,
-        params: {
-          user_wallet_address: wallet.publicKey.toString(),
-        },
-      });
-      setData(response.data);
+  useEffect(() => {
+    async function fetchCheckins() {
+      if (wallet.publicKey) {
+        let response = await axios({
+          url: `${baseUrl}/checkins`,
+          params: {
+            user_wallet_address: wallet.publicKey.toString(),
+          },
+        });
+        setData(response.data);
+      }
     }
-  }
+    fetchCheckins();
+  }, [wallet]);
 
   useEffect(() => {
     if (map.current) return; // initialize map only once
@@ -54,11 +57,6 @@ export default function HistoricalCheckIns() {
       geolocate.trigger();
     });
   });
-
-  useEffect(() => {
-    fetchCheckins();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet]);
 
   useEffect(() => {
     if (!map.current) return; // wait for map to initialize
