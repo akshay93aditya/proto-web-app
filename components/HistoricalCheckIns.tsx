@@ -1,10 +1,9 @@
-import React, { useRef, useEffect, useState } from "react";
-import mapboxgl from "mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
-import "mapbox-gl/dist/mapbox-gl.css";
-import axios from "axios";
-import { useWallet } from "@solana/wallet-adapter-react";
-mapboxgl.accessToken =
-  "pk.eyJ1Ijoic2hyZXlhc2gxNSIsImEiOiJjbDY0MGx6d3cwZHFkM3FwZ3Mwb2htMGZoIn0.0BtzRvleOZQpq9EiZbBU_A";
+import React, { useRef, useEffect, useState } from 'react';
+import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import 'mapbox-gl/dist/mapbox-gl.css';
+import axios from 'axios';
+import { useWallet } from '@solana/wallet-adapter-react';
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_REACT_MAPBOX_ACCESS_TOKEN;
 
 export default function HistoricalCheckIns() {
   const mapContainer = useRef(null);
@@ -14,7 +13,7 @@ export default function HistoricalCheckIns() {
   const [zoom, setZoom] = useState(9);
   const [data, setData] = useState([]);
   const wallet = useWallet();
-  let baseUrl = "https://proto-api.onrender.com";
+  let baseUrl = 'https://proto-api.onrender.com';
 
   async function fetchCheckins() {
     if (wallet.publicKey) {
@@ -33,11 +32,11 @@ export default function HistoricalCheckIns() {
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       projection: {
-        name: "mercator",
+        name: 'mercator',
         center: [lng, lat],
         parallels: [30, 30],
       },
-      style: "mapbox://styles/mapbox/streets-v12",
+      style: 'mapbox://styles/mapbox/streets-v12',
       center: [lng, lat],
       zoom: zoom,
       minZoom: 1,
@@ -51,7 +50,7 @@ export default function HistoricalCheckIns() {
     });
     // Add the control to the map.
     map.current.addControl(geolocate);
-    map.current.on("load", () => {
+    map.current.on('load', () => {
       geolocate.trigger();
     });
   });
@@ -62,7 +61,7 @@ export default function HistoricalCheckIns() {
 
   useEffect(() => {
     if (!map.current) return; // wait for map to initialize
-    map.current.on("move", () => {
+    map.current.on('move', () => {
       setLng(map.current.getCenter().lng.toFixed(4));
       setLat(map.current.getCenter().lat.toFixed(4));
       setZoom(map.current.getZoom().toFixed(2));
@@ -84,7 +83,7 @@ export default function HistoricalCheckIns() {
     <div>
       <div
         className="mapContain"
-        style={{ width: `100%`, height: "calc(100vh - 122px)" }}
+        style={{ width: `100%`, height: 'calc(100vh - 122px)' }}
       >
         <div ref={mapContainer} className="map-container" />
       </div>
