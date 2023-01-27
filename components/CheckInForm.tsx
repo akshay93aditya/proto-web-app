@@ -1,23 +1,13 @@
 import { useState, useEffect, useRef, useContext } from 'react';
-import { utils, Program, AnchorProvider } from '@project-serum/anchor';
 import { useWallet } from '@solana/wallet-adapter-react';
-import axios from 'axios';
 import { Audio } from 'react-loader-spinner';
 import { Button, Circle, Textarea, useToast } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import { create } from 'ipfs-http-client';
-import {
-  clusterApiUrl,
-  ConfirmOptions,
-  Connection,
-  PublicKey,
-  SystemProgram,
-} from '@solana/web3.js';
-import { latLngToCell } from 'h3-js';
 import { FailedCheckInIcon } from '../dynamic/CheckInIcons';
-import { Orbis } from '@orbisclub/orbis-sdk';
 import { TagList } from './Taglist';
 import { OrbisContext } from '../context/OrbisContext';
+import { handleCheckInSubmit } from '../utils/handleCheckInSubmit';
 
 export type CheckIN = {
   lat: number;
@@ -48,14 +38,14 @@ const client = create({
   },
 });
 
-const CheckInForm = () => {
+export default function CheckInForm() {
   const [lat, setlat] = useState<number>(0);
   const [lng, setlng] = useState<number>(0);
   const [checkInMessage, setcheckInMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [checkInSignature, setCheckInSignature] = useState<string>('');
   const [pdl, setPdl] = useState<string>('');
-  const [success, setSuccess] = useState<boolean>(false);
+  const [success, setSuccess] = useState<boolean>();
   const [checkin, setcheckIn] = useState<object>();
   const [imageCount, setImageCount] = useState<number>(0);
   const [files, setFiles] = useState([]);
@@ -65,36 +55,14 @@ const CheckInForm = () => {
   ]);
   const [orbisFiles, setOrbisFiles] = useState<any>([]);
 
-  const [user, setUser] = useState<string>('');
+  const toast = useToast();
+  // const successToast = () =>
+
+  // const errorToast = () =>
 
   const wallet = useWallet();
 
   const { orbis } = useContext(OrbisContext);
-
-  const toast = useToast();
-  const successToast = () =>
-    toast({
-      title: `Check-In Complete`,
-      // description: (
-      // 	<a
-      // 		href={`https://explorer.solana.com/tx/${checkInSignature}?cluster=devnet`}
-      // 		rel='noreferrer'
-      // 		target='_blank'>
-      // 		View in Explorer
-      // 	</a>
-      // ),
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-    });
-
-  const errorToast = () =>
-    toast({
-      title: `Check-In failed`,
-      status: 'error',
-      duration: 5000,
-      isClosable: true,
-    });
 
   useEffect(() => {
     const options = {
@@ -112,168 +80,44 @@ const CheckInForm = () => {
     navigator.geolocation.getCurrentPosition(success, error, options);
   }, []);
 
-  const opts: ConfirmOptions = {
-    preflightCommitment: 'processed',
-  };
-
-  const network =
-    'https://solana-devnet.g.alchemy.com/v2/6nOSXYNw7tWYjDzvQ2oLBVBfMg6Gj9Ho';
-
-  const getProvider = () => {
-    const connection = new Connection(network, opts.preflightCommitment);
-    const provider = new AnchorProvider(connection, window.solana, opts);
-    return provider;
-  };
-
-  const getProgram = async () => {
-    const provider = getProvider();
-    // Get metadata about your solana program
-    const idl = await Program.fetchIdl(
-      process.env.NEXT_PUBLIC_PROGRAM_ID,
-      provider
-    );
-    // Create a program that you can call
-    return new Program(idl, process.env.NEXT_PUBLIC_PROGRAM_ID, provider);
-  };
+  useEffect(() => {
+    if (success == true) {
+      toast({
+        title: `Check-In Complete`,
+        // description: (
+        // 	<a
+        // 		href={`https://explorer.solana.com/tx/${checkInSignature}?cluster=devnet`}
+        // 		rel='noreferrer'
+        // 		target='_blank'>
+        // 		View in Explorer
+        // 	</a>
+        // ),
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+    } else if (success == false) {
+      // errorToast();
+      toast({
+        title: `Check-In failed`,
+        description: (
+          <a
+            href={`https://explorer.solana.com/tx/${checkInSignature}?cluster=devnet`}
+            rel="noreferrer"
+            target="_blank"
+          >
+            View in Explorer
+          </a>
+        ),
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [success]);
 
   let baseUrl = 'https://proto-api.onrender.com';
-
-  async function CheckInTransaction(mongoId: string) {
-    const provider = getProvider();
-    const hindex = latLngToCell(lat, lng, 7);
-
-    const program = await getProgram();
-
-    const [checkInPDA] = PublicKey.findProgramAddressSync(
-      [
-        utils.bytes.utf8.encode('check-in-data'),
-        provider.wallet.publicKey.toBuffer(),
-        Buffer.from(mongoId),
-        Buffer.from(hindex),
-      ],
-      program.programId
-    );
-
-    try {
-      const sig = await program.methods
-        .checkIn(hindex, mongoId, checkInMessage)
-        .accounts({
-          user: provider.wallet.publicKey,
-          checkIn: checkInPDA,
-          systemProgram: SystemProgram.programId,
-        })
-        .rpc();
-      // save generated pdl for this checkin
-      const checkinPdlResponse = await axios({
-        method: 'post',
-        url: `${baseUrl}/checkins/${mongoId}/pdls`,
-        data: {
-          pdl: checkInPDA,
-        },
-      });
-      setPdl(checkInPDA.toString());
-      setcheckIn(checkinPdlResponse.data);
-      setCheckInSignature(sig);
-    } catch (error) {
-      console.error(error);
-      throw new Error(error);
-    }
-  }
-
-  async function handleSubmit(e: any) {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      setSuccess(false);
-      if (!wallet.publicKey) {
-        alert('Wallet Not Connected');
-        setLoading(false);
-        return;
-      }
-
-      const usersResponse = await axios({
-        method: 'get',
-        url: `${baseUrl}/users`,
-        params: { wallet_address: wallet.publicKey.toString() },
-      });
-
-      if (usersResponse.data.length) {
-        const orbisCheckinResponse = await orbis.createPost({
-          body: checkInMessage,
-          data: {
-            latitude: lat,
-            longitude: lng,
-          },
-          tags: orbisTag,
-          files: orbisFiles,
-        });
-        console.log(orbisCheckinResponse);
-
-        const checkinResponse = await axios({
-          method: 'post',
-          url: `${baseUrl}/checkins`,
-          data: {
-            user_wallet_address: wallet.publicKey.toString(),
-            message: checkInMessage,
-            latitude: lat,
-            longitude: lng,
-            ...(files && { files }),
-            tag: selectedTag,
-          },
-        });
-        console.log(checkinResponse);
-        if (checkinResponse.data) {
-          await CheckInTransaction(checkinResponse.data._id);
-          setcheckIn(checkinResponse);
-          setLoading(false);
-          setSuccess(true);
-          successToast();
-        }
-        // successToast();
-      } else {
-        await axios({
-          method: 'post',
-          url: `${baseUrl}/users`,
-          data: {
-            wallet_address: wallet.publicKey.toString(),
-          },
-        });
-        const orbisCheckinResponse = await orbis.createPost({
-          body: checkInMessage,
-          data: {
-            latitude: lat,
-            longitude: lng,
-          },
-          tags: orbisTag,
-          files: orbisFiles,
-        });
-        console.log(orbisCheckinResponse);
-
-        const checkinResponse = await axios({
-          method: 'post',
-          url: `${baseUrl}/checkins`,
-          data: {
-            user_wallet_address: wallet.publicKey.toString(),
-            message: checkInMessage,
-            latitude: lat,
-            longitude: lng,
-            ...(files && { files }),
-            tag: selectedTag,
-          },
-        });
-        await CheckInTransaction(checkinResponse.data._id);
-        setcheckIn(checkinResponse.data);
-        setLoading(false);
-        setSuccess(true);
-        // successToast();
-      }
-    } catch (error) {
-      console.log(error);
-      setLoading(false);
-      setSuccess(false);
-      errorToast();
-    }
-  }
 
   function handleChange(e: any) {
     setcheckInMessage(e.target.value);
@@ -352,7 +196,25 @@ const CheckInForm = () => {
       </div>
       <form
         className=" md:[w-3/5] flex w-[90%] max-w-[600px] flex-col items-center justify-center px-2 py-6 md:px-5 md:py-2"
-        onSubmit={handleSubmit}
+        onSubmit={(e) =>
+          handleCheckInSubmit(
+            e,
+            wallet,
+            setcheckIn,
+            setLoading,
+            setSuccess,
+            checkInMessage,
+            files,
+            selectedTag,
+            orbisTag,
+            orbisFiles,
+            orbis,
+            setPdl,
+            setCheckInSignature,
+            lat,
+            lng
+          )
+        }
       >
         <div className="flex w-full items-center justify-center pb-4 pt-4">
           <Textarea
@@ -439,6 +301,4 @@ const CheckInForm = () => {
       </form>
     </div>
   );
-};
-
-export default CheckInForm;
+}
