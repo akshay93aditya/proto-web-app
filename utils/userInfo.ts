@@ -11,5 +11,6 @@ export const useGetUserInfo = (walletAddress) => {
   return useQuery({
     queryKey: ['userInfo', walletAddress],
     queryFn: () => getUserInfo(walletAddress),
+    staleTime: Infinity,
   });
 };

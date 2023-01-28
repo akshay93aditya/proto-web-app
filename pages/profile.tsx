@@ -65,10 +65,11 @@ export default function Profile() {
   const handleImageUpload = async (e: any) => {
     try {
       const file = e.target.files[0];
+      console.log(file);
       const added = await client.add(file);
-      if (added) {
+      console.log(added);
+      if (await added) {
         setNewProfilePic({ filename: file.name, hash: added.path });
-
         console.log(newProfilePic);
       }
 

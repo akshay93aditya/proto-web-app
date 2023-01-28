@@ -9,6 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { TagList } from './Taglist';
 import { useState } from 'react';
+import SEOtag from './SEOtag';
 
 export default function SingleCheckIn({
   body,
@@ -65,6 +66,7 @@ export default function SingleCheckIn({
   return (
     <div className="my-2 mx-auto flex  min-h-[calc(100vh-150px)] w-96 flex-col justify-between px-2 py-4">
       <Modal />
+      <SEOtag title={body} />
       <div>
         <div className="flex items-center align-middle ">
           <Image
@@ -191,7 +193,7 @@ export default function SingleCheckIn({
             </p>
             <a
               href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
-              className="font-light text-gray-700 underline decoration-gray-600/50 underline-offset-2"
+              className="text-sm font-light text-gray-700 underline decoration-gray-600/50 underline-offset-2"
               target="_blank"
               rel="noreferrer"
             >
