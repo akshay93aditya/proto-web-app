@@ -184,7 +184,7 @@ export default function SingleCheckIn({
       </div>
       <div>
         {signature && (
-          <>
+          <div className="mb-12 pt-2">
             <br />
             <hr style={{ border: `2px solid #14aede` }} />
             <br />
@@ -202,7 +202,7 @@ export default function SingleCheckIn({
             >
               View in Explorer
             </a>
-          </>
+          </div>
         )}
       </div>
     </div>
