@@ -185,6 +185,9 @@ export default function SingleCheckIn({
       <div>
         {signature && (
           <>
+            <br />
+            <hr style={{ border: `2px solid #14aede` }} />
+            <br />
             <p className="text-sm font-light text-gray-700">
               Signature : {signature}
             </p>
