@@ -1,11 +1,10 @@
-import { Center, Flex, SimpleGrid } from '@chakra-ui/react';
-import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
-import Timeline from '../../components/Timeline';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 import { useWallet } from '@solana/wallet-adapter-react';
 import SingleCheckIn from '../../components/SingleCheckIn';
+import { useSingleCheckIn } from '../../utils/singleCheckInInfo';
+import { useGetUserInfo } from '../../utils/userInfo';
+import { SkeletonText } from '@chakra-ui/react';
 
 export default function SingleLifelog() {
   const router = useRouter();
@@ -15,51 +14,55 @@ export default function SingleLifelog() {
 
   const wallet = useWallet();
 
+  const { data, status, error } = useSingleCheckIn(slug);
+
+  const {
+    data: userData,
+    status: userStatus,
+    error: userError,
+  } = useGetUserInfo(wallet.publicKey);
+
   useEffect(() => {
-    async function getCheckInDetails() {
-      try {
-        const checkInDetails = await axios.get(
-          `https://proto-api.onrender.com/checkins/${slug}`
-        );
-        console.log(checkInDetails.data);
-        setCheckin(checkInDetails.data);
-      } catch (e) {
-        console.log(e);
-      }
+    if (status == 'success') {
+      console.log(data.data);
+      setCheckin(data.data);
     }
-    async function getUserDetails() {
-      try {
-        const res = await axios.get('https://proto-api.onrender.com/users', {
-          params: { wallet_address: wallet.publicKey },
-        });
-        console.log(res.data);
-        setUser(res.data[0]);
-      } catch (e) {
-        console.log(e);
-      }
+
+    if (userStatus == 'success') {
+      console.log(userData.data);
+      setUser(userData.data[0]);
     }
-    if (slug) {
-      getCheckInDetails();
-    }
-    if (wallet) {
-      getUserDetails();
-    }
-  }, [slug, wallet]);
+  }, [data, status, error, userData, userStatus, userError]);
 
   return (
     <div>
-      {checkIn && user && (
-        <SingleCheckIn
-          address={checkIn.user_wallet_address}
-          body={checkIn.message}
-          tag={checkIn.tag}
-          username={user.name}
-          lat={checkIn.latitude}
-          long={checkIn.longitude}
-          date={checkIn.createdAt}
-          files={checkIn.files}
-          pfp={user.profile_picture?.hash}
+      {status == 'loading' || userStatus == 'loading' ? (
+        <SkeletonText
+          noOfLines={4}
+          width="40%"
+          maxW="800px"
+          mx="auto"
+          my={20}
+          spacing="4"
+          startColor="gray.100"
+          endColor="gray.300"
         />
+      ) : (
+        checkIn &&
+        user && (
+          <SingleCheckIn
+            address={checkIn.user_wallet_address}
+            body={checkIn.message}
+            tag={checkIn.tag}
+            username={user.name}
+            lat={checkIn.latitude}
+            long={checkIn.longitude}
+            date={checkIn.createdAt}
+            files={checkIn.files}
+            pfp={user.profile_picture?.hash}
+            signature={checkIn.signature}
+          />
+        )
       )}
 
       {/* <div className='w-auto md:w-[500px] mx-auto p-4'>

@@ -1,10 +1,8 @@
 import { useWallet } from '@solana/wallet-adapter-react';
 import dynamic from 'next/dynamic';
-import { Center, chakra, Flex } from '@chakra-ui/react';
+import { chakra } from '@chakra-ui/react';
 import '@solana/wallet-adapter-react-ui/styles.css';
 import { WalletIcon } from '../dynamic/WalletIcon';
-
-import { WalletIcon as Icon } from '@solana/wallet-adapter-react-ui';
 
 const WalletMultiButtonDynamic = dynamic(
   async () =>

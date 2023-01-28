@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Image from 'next/image';
 import {
   Button,
@@ -10,6 +10,10 @@ import {
   InputGroup,
   InputRightElement,
   Image as ChakraImage,
+  Spinner,
+  SkeletonCircle,
+  SkeletonText,
+  Skeleton,
 } from '@chakra-ui/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { DiscordLogo, InstagramLogo, TwitterLogo } from '../dynamic/Profile';
@@ -17,10 +21,9 @@ import axios from 'axios';
 import Options from '../components/Options';
 import { create } from 'ipfs-http-client';
 
-import { Orbis } from '@orbisclub/orbis-sdk';
 import SEOtag from '../components/SEOtag';
-
-let orbis = new Orbis();
+import { useGetUserInfo } from '../utils/userInfo';
+import { OrbisContext } from '../context/OrbisContext';
 
 const projectId = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
 const projectSecret = process.env.NEXT_PUBLIC_INFURA_PROJECT_SECRET;
@@ -47,37 +50,26 @@ export default function Profile() {
   const [user, setUser] = useState<string>(null);
   const [_id, set_id] = useState<string>(null);
 
+  const { orbis } = useContext(OrbisContext);
+
+  const { data, status, error } = useGetUserInfo(wallet.publicKey);
+
   useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        let isConnectedtoOrbis = await orbis.isConnected();
-        console.log(isConnectedtoOrbis);
-        if (!isConnectedtoOrbis) {
-          await orbis.connect_v2({
-            provider: window?.phantom?.solana,
-            chain: 'solana',
-          });
-        }
-        const res = await axios.get('https://proto-api.onrender.com/users', {
-          params: { wallet_address: wallet.publicKey },
-        });
-        setUserName(res.data[0].name);
-        setProfilePic(res.data[0].profile_picture);
-        set_id(res.data[0]._id);
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    if (wallet.publicKey) fetchUserDetails();
-  }, [wallet.publicKey]);
+    if (status === 'success') {
+      set_id(data.data[0]?._id);
+      setUserName(data.data[0]?.name);
+      setProfilePic(data.data[0]?.profile_picture);
+    }
+  }, [data, status, error]);
 
   const handleImageUpload = async (e: any) => {
     try {
       const file = e.target.files[0];
+      console.log(file);
       const added = await client.add(file);
-      if (added) {
+      console.log(added);
+      if (await added) {
         setNewProfilePic({ filename: file.name, hash: added.path });
-
         console.log(newProfilePic);
       }
 
@@ -144,75 +136,99 @@ export default function Profile() {
       <div>
         <div className=" mx-auto h-[calc(100vh-200px)] max-w-[600px] align-middle">
           <div className="p-6">
-            <label className="relative">
-              <ChakraImage
-                src={
-                  profilePic
-                    ? `https://ipfs.io/ipfs/${profilePic?.hash}`
-                    : '/profileplaceholder.svg'
-                }
-                alt="/"
-                objectFit="cover"
-                className="mx-auto h-32 w-32 cursor-pointer rounded-full border border-[#b6b8b9] object-cover"
-              />
-              <p className="mt-1 cursor-pointer text-center text-xs font-medium text-[#AEB4B7]">
-                {!profilePic ? 'Add a pic' : 'Change'}
-              </p>
-              <input
-                type="file"
-                className="absolute top-0 left-0 z-0 m-auto h-36 w-32 cursor-pointer opacity-0"
-                // onChange={onImageUpload}
-                onChange={(e) => handleImageUpload(e)}
-              />
-            </label>
-            <div className="mt-6 flex items-center">
-              {/* <p className='font-medium'>Username</p> */}
-              {!userName ? (
-                <FormControl>
-                  <FormLabel
-                    fontSize="sm"
-                    mb="-0.5px"
-                    color="gray.500"
-                    fontWeight={400}
-                  >
-                    Username
-                  </FormLabel>
-                  <InputGroup>
-                    <Input
-                      placeholder="Set a username..."
-                      borderColor="#E2E8F0"
-                      type="text"
-                      onChange={handleChangeUserName}
-                    />
-                    <InputRightElement w="4.5rem">
-                      {editingUserName &&
-                      newUserName.length !== 0 &&
-                      userName !== newUserName ? (
-                        <Center>
-                          <Button
-                            h="32px"
-                            mr="4px"
-                            colorScheme="telegram"
-                            bg="primary"
-                            color="#fff"
-                            onClick={handleSaveUserName}
-                          >
-                            Save
-                          </Button>
-                        </Center>
-                      ) : null}
-                    </InputRightElement>
-                  </InputGroup>
-                  <FormHelperText color="gray.400">
-                    *You can only set your username once
-                  </FormHelperText>
-                </FormControl>
-              ) : (
-                <p className="mx-auto text-center text-2xl font-medium text-gray-700">
-                  {userName}
-                </p>
-              )}
-            </div>
+            {status == 'loading' ? (
+              <>
+                <SkeletonCircle
+                  size="8rem"
+                  startColor="gray.100"
+                  endColor="gray.300"
+                  mx="auto"
+                />
+                <Skeleton
+                  width="40%"
+                  h="24px"
+                  maxW="800px"
+                  mx="auto"
+                  mt={14}
+                  // spacing="4"
+                  startColor="gray.100"
+                  endColor="gray.300"
+                />
+              </>
+            ) : (
+              <>
+                <label className="relative">
+                  <ChakraImage
+                    src={
+                      profilePic
+                        ? `https://ipfs.io/ipfs/${profilePic?.hash}`
+                        : '/profileplaceholder.svg'
+                    }
+                    alt="/"
+                    objectFit="cover"
+                    className="mx-auto h-32 w-32 cursor-pointer rounded-full border border-[#b6b8b9] object-cover"
+                  />
+                  <p className="mt-1 cursor-pointer text-center text-xs font-medium text-[#AEB4B7]">
+                    {!profilePic ? 'Add a pic' : 'Change'}
+                  </p>
+                  <input
+                    type="file"
+                    className="absolute top-0 left-0 z-0 m-auto h-36 w-32 cursor-pointer opacity-0"
+                    // onChange={onImageUpload}
+                    onChange={(e) => handleImageUpload(e)}
+                  />
+                </label>
+                <div className="mt-6 flex items-center">
+                  {/* <p className='font-medium'>Username</p> */}
+                  {!userName ? (
+                    <FormControl>
+                      <FormLabel
+                        fontSize="sm"
+                        mb="-0.5px"
+                        color="gray.500"
+                        fontWeight={400}
+                      >
+                        Username
+                      </FormLabel>
+                      <InputGroup>
+                        <Input
+                          placeholder="Set a username..."
+                          borderColor="#E2E8F0"
+                          type="text"
+                          onChange={handleChangeUserName}
+                        />
+                        <InputRightElement w="4.5rem">
+                          {editingUserName &&
+                          newUserName.length !== 0 &&
+                          userName !== newUserName ? (
+                            <Center>
+                              <Button
+                                h="32px"
+                                mr="4px"
+                                colorScheme="telegram"
+                                bg="primary"
+                                color="#fff"
+                                onClick={handleSaveUserName}
+                              >
+                                Save
+                              </Button>
+                            </Center>
+                          ) : null}
+                        </InputRightElement>
+                      </InputGroup>
+                      <FormHelperText color="gray.400">
+                        *You can only set your username once
+                      </FormHelperText>
+                    </FormControl>
+                  ) : (
+                    <p className="mx-auto text-center text-2xl font-medium text-gray-700">
+                      {userName}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
+
             <Options />
           </div>
 
