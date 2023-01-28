@@ -16,31 +16,29 @@ export default function Header() {
   return (
     <div className="sticky top-0 z-20 flex w-full items-center justify-between bg-white py-2 px-2 shadow md:px-8">
       <LogoSmall onClick={() => router.push('/')} />
-      <div className="ml-4 flex items-center">
-        {router.pathname === '/' && (
-          <ChakraButton
-            colorScheme="telegram"
-            variant="outline"
-            color="primary"
-            mr="8px"
-            onClick={() => router.push('/history')}
-          >
-            Toggle to History
-          </ChakraButton>
-        )}
-        {router.pathname === '/history' && (
-          <ChakraButton
-            colorScheme="telegram"
-            variant="outline"
-            color="primary"
-            mr="8px"
-            onClick={() => router.push('/')}
-          >
-            Toggle to Check-In Map
-          </ChakraButton>
-        )}
-        <Button />
-      </div>
+      {router.pathname === '/' && (
+        <ChakraButton
+          colorScheme="telegram"
+          variant="outline"
+          color="primary"
+          mr="8px"
+          onClick={() => router.push('/history')}
+        >
+          View Checkin History
+        </ChakraButton>
+      )}
+      {router.pathname === '/history' && (
+        <ChakraButton
+          colorScheme="telegram"
+          variant="outline"
+          color="primary"
+          mr="8px"
+          onClick={() => router.push('/')}
+        >
+          New Check In
+        </ChakraButton>
+      )}
+      <Button />
     </div>
   );
 }
