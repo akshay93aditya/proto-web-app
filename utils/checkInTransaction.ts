@@ -22,7 +22,14 @@ const network =
 
 const getProvider = () => {
   const connection = new Connection(network, opts.preflightCommitment);
-  const provider = new AnchorProvider(connection, window.solana, opts);
+  let provider;
+  if (window.solana) {
+    provider = new AnchorProvider(connection, window.solana, opts);
+  } else if (window.solflare) {
+    provider = new AnchorProvider(connection, window.solflare, opts);
+  } else if (window.backpack) {
+    provider = new AnchorProvider(connection, window.backpack, opts);
+  }
   return provider;
 };
 
@@ -52,7 +59,9 @@ export async function CheckInTransaction(
 
   const program = await getProgram();
 
-  const [checkInPDA] = PublicKey.findProgramAddressSync(
+  console.log(provider);
+
+  const [checkInPDA, _] = PublicKey.findProgramAddressSync(
     [
       utils.bytes.utf8.encode('check-in-data'),
       provider.wallet.publicKey.toBuffer(),

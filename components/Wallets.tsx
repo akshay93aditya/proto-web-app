@@ -13,6 +13,7 @@ import {
   MathWalletAdapter,
   SolflareWalletAdapter,
   TorusWalletAdapter,
+  BackpackWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 
 const Wallets = ({ children }) => {
@@ -28,6 +29,7 @@ const Wallets = ({ children }) => {
       new MathWalletAdapter(),
       new GlowWalletAdapter(),
       new TorusWalletAdapter(),
+      new BackpackWalletAdapter(),
     ],
     []
   );

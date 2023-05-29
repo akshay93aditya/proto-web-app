@@ -56,12 +56,7 @@ export default function CheckInForm() {
   const [orbisFiles, setOrbisFiles] = useState<any>([]);
 
   const toast = useToast();
-  // const successToast = () =>
-
-  // const errorToast = () =>
-
   const wallet = useWallet();
-
   const { orbis } = useContext(OrbisContext);
 
   useEffect(() => {

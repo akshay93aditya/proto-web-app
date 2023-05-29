@@ -15,6 +15,7 @@
 		"@next/font": "^13.1.1",
 		"@orbisclub/orbis-sdk": "^0.4.14",
 		"@project-serum/anchor": "^0.26.0",
+		"@solana/wallet-adapter-backpack": "^0.1.13",
 		"@solana/wallet-adapter-base": "^0.9.20",
 		"@solana/wallet-adapter-glow": "^0.1.15",
 		"@solana/wallet-adapter-mathwallet": "^0.9.15",
