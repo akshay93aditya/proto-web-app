@@ -30,6 +30,9 @@ const getProvider = () => {
   } else if (window.backpack) {
     provider = new AnchorProvider(connection, window.backpack, opts);
   }
+  if (!provider) {
+    throw new Error('No provider available');
+  }
   return provider;
 };
 
