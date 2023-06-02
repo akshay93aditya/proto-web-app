@@ -11,13 +11,36 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { OrbisContext } from '../context/OrbisContext';
 import { Orbis } from '@orbisclub/orbis-sdk';
+import WrappedBackpackProvider from '../utils/WrappedBackpackProvider';
 
 const queryClient = new QueryClient();
 
 let orbis = new Orbis();
+// let provider: WrappedBackpackProvider | null = null;
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [user, setUser] = useState<string>(null);
+
+  // async function isConnectedtoOrbis() {
+  //   let res = await orbis.isConnected();
+  //   if (res && res.status == 200) {
+  //     setUser(res.details);
+  //   } else if (provider) {
+  //     await orbis.connect_v2({
+  //       provider,
+  //       chain: 'solana',
+  //       lit: 'false',
+  //     });
+  //   }
+  // }
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined' && window.backpack) {
+  //     provider = new WrappedBackpackProvider(window.backpack);
+  //   }
+  //   if (!user) {
+  //     isConnectedtoOrbis();
+  //   }
+  // }, [user]);
 
   async function isConnectedtoOrbis() {
     let res = await orbis.isConnected();
@@ -25,7 +48,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       setUser(res.details);
     } else {
       await orbis.connect_v2({
-        provider: window?.phantom?.solana,
+        provider: window?.solana,
         chain: 'solana',
       });
     }

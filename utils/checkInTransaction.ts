@@ -1,5 +1,4 @@
 import {
-  clusterApiUrl,
   ConfirmOptions,
   Connection,
   PublicKey,
@@ -20,30 +19,23 @@ let baseUrl = 'https://proto-api.onrender.com';
 const network =
   'https://solana-devnet.g.alchemy.com/v2/6nOSXYNw7tWYjDzvQ2oLBVBfMg6Gj9Ho';
 
-const getProvider = () => {
+const getProvider = async () => {
   const connection = new Connection(network, opts.preflightCommitment);
-  let provider;
-  if (window.solana) {
-    provider = new AnchorProvider(connection, window.solana, opts);
-  } else if (window.solflare) {
-    provider = new AnchorProvider(connection, window.solflare, opts);
-  } else if (window.backpack) {
-    provider = new AnchorProvider(connection, window.backpack, opts);
-  }
-  if (!provider) {
-    throw new Error('No provider available');
-  }
-  return provider;
+  const provider = [window.solana, window.solflare, window.backpack].find(
+    (p) => p && p.isConnected
+  );
+
+  if (!provider) throw new Error('No provider available');
+  if (!provider.isConnected) await provider.connect();
+  return new AnchorProvider(connection, provider, opts);
 };
 
 const getProgram = async () => {
-  const provider = getProvider();
-  // Get metadata about your solana program
+  const provider = await getProvider();
   const idl = await Program.fetchIdl(
     process.env.NEXT_PUBLIC_PROGRAM_ID,
     provider
   );
-  // Create a program that you can call
   return new Program(idl, process.env.NEXT_PUBLIC_PROGRAM_ID, provider);
 };
 
@@ -57,17 +49,17 @@ export async function CheckInTransaction(
   setCheckInSignature,
   checkInSignature
 ) {
-  const provider = getProvider();
+  const provider = await getProvider();
   const hindex = latLngToCell(lat, lng, 7);
 
   const program = await getProgram();
 
   console.log(provider);
 
-  const [checkInPDA, _] = PublicKey.findProgramAddressSync(
+  const [checkInPDA] = PublicKey.findProgramAddressSync(
     [
       utils.bytes.utf8.encode('check-in-data'),
-      provider.wallet.publicKey.toBuffer(),
+      provider.publicKey.toBuffer(),
       Buffer.from(mongoId),
       Buffer.from(hindex),
     ],
